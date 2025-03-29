@@ -6,9 +6,62 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+generator erd {
+  provider = "prisma-erd-generator"
+}
+
+
+model University{
+  university_id     Int         @id          @default(autoincrement()) 
+  name              String      @unique
+  address           String
+  zipcode           Int
+  cordinates        String
+  services          Services[]
+  products          Products[]
+  purcahses         Purchases[]
+  university_logo   String
+  user_count        Int
+  users             User[]
+  createdAt         DateTime     @default(now())
+  
+}
 
 model User{
-  name String
-  age Int @unique
+  user_id               Int           @id           @default(autoincrement())
+  university_id    Int           
+  user_university  University    @relation(fields: [university_id ], references: [university_id])
+  user_name        String       
+  user_email       String        @unique
+  user_mobile_no   BigInt?       @unique
+  user_password    String         
+  user_products    Products[]
+  user_services    Services[] 
+  user_avtar       String
+  user_purchases   Purchases[]
+  user_createdAt   DateTime      @default(now())
+
+}
+model Products{
+  product_id        Int            @id    
+  user_id           Int
+  user              User           @relation(fields: [user_id],references: [user_id])      
+  university_id     Int
+  university        University     @relation(fields: [university_id],references: [university_id])
+}
+model Services{
+  service_id        Int            @id        @default(autoincrement())
+  user_id           Int            
+  user              User           @relation(fields: [user_id],references: [user_id])
+  university_id     Int
+  university        University     @relation(fields: [university_id],references: [university_id])
+
+}
+model Purchases{
+  purchase_id       Int            @id        @default(autoincrement())
+  user_id           Int
+  user              User           @relation(fields: [user_id],references: [user_id])
+  university_id     Int
+  university        University     @relation(fields: [university_id],references: [university_id])
 
 }
