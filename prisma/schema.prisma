@@ -10,58 +10,150 @@ generator erd {
   provider = "prisma-erd-generator"
 }
 
+enum Order_Status{
+  PLACED
+  DISPATCHED
+  RECEIVED
+}
+enum Transaction_Status{
+  PAID
+  NOT_PAID
+}
+enum Role{
+  ADMIN
+  SELLER
+  BUYER
+}
 
 model University{
-  university_id     Int         @id          @default(autoincrement()) 
+  university_id     String      @id                  @default(uuid()) 
   name              String      @unique
   address           String
   zipcode           Int
-  cordinates        String
+  latitude          Float
+  longitude         Float
+  category          String
+  description       String?
+  university_logo   String
+  user_count        Int          @default(0)
+  createdAt         DateTime     @default(now())
+  
   services          Services[]
   products          Products[]
-  purcahses         Purchases[]
-  university_logo   String
-  user_count        Int
   users             User[]
-  createdAt         DateTime     @default(now())
   
 }
 
 model User{
-  user_id               Int           @id           @default(autoincrement())
-  university_id    Int           
+  user_id          String        @id           @default(uuid())
+  university_id    String           
   user_university  University    @relation(fields: [university_id ], references: [university_id])
   user_name        String       
   user_email       String        @unique
-  user_mobile_no   BigInt?       @unique
-  user_password    String         
+  user_mobile_no   String?       @unique
+  hashed_password  String   
+  user_avtar       String
+  role             Role         @default(BUYER)    
+  isVerified       Boolean      @default(false)
+  user_createdAt   DateTime      @default(now())
+
+
+  user_purchases   Purchases[]
+  user_cart        Cart[]
   user_products    Products[]
   user_services    Services[] 
-  user_avtar       String
-  user_purchases   Purchases[]
-  user_createdAt   DateTime      @default(now())
+  user_orders      Orders[]
+  buyer_transactions  Transactions[]  @relation(name: "buyer_transaction")  
+  seller_transactions Transactions[]  @relation(name: "seller_transaction") 
+  
 
 }
 model Products{
-  product_id        Int            @id    
-  user_id           Int
-  user              User           @relation(fields: [user_id],references: [user_id])      
-  university_id     Int
+  product_id        String         @id          @default(uuid())    
+  user_id           String       
+  university_id     String
+  name              String
+  description       String?
+  price             Decimal
+  category          String
+  condition         String        //"new" or "used" usr slr will give 
+  imageUrl          String
+  createdAt         DateTime       @default(now())
+
+  user              User           @relation(fields: [user_id],references: [user_id]) 
   university        University     @relation(fields: [university_id],references: [university_id])
+  orders            Orders[]
+  transaction       Transactions[]
+  purchases         Purchases[]
+  cart              Cart[]
 }
 model Services{
-  service_id        Int            @id        @default(autoincrement())
-  user_id           Int            
+  service_id        String         @id        @default(uuid())
+  user_id           String        
+  university_id     String
+  name              String
+  description       String?
+  price             Decimal
+  service_type      String        //"asignment","project help", "bike rent" etc ....
+  createdAt         DateTime       @default(now())
+
   user              User           @relation(fields: [user_id],references: [user_id])
-  university_id     Int
   university        University     @relation(fields: [university_id],references: [university_id])
 
 }
 model Purchases{
-  purchase_id       Int            @id        @default(autoincrement())
-  user_id           Int
-  user              User           @relation(fields: [user_id],references: [user_id])
-  university_id     Int
-  university        University     @relation(fields: [university_id],references: [university_id])
+  purchase_id       String         @id        @default(uuid())
+  user_id           String
+  product_id        String
+  amount            Decimal
+  status            Order_Status   @default(PLACED)
+  purchase_date     DateTime       @default(now())
 
+
+  user              User           @relation(fields: [user_id],references: [user_id])
+  product           Products       @relation(fields: [product_id],references: [product_id])
+  
+
+}
+
+model Cart{
+  id                String        @id       @default(uuid())
+  user_id           String
+  product_id        String
+  quantity          Int            @default(1)    
+  createdAt         DateTime       @default(now())
+
+  user              User           @relation(fields: [user_id],references: [user_id])
+  product           Products      @relation(fields: [product_id],references: [product_id])
+}
+
+model Orders{
+  order_id          String         @id                 @default(uuid())
+  status            Order_Status   @default(PLACED)
+  user_id           String
+  product_id        String
+  quantity          Int
+  totalPrice        Decimal
+  paymentStatus     Transaction_Status    
+  createdAt         DateTime       @default(now())  
+  delivery_date     DateTime?
+
+  user              User          @relation(fields: [user_id],references: [user_id])
+  product           Products      @relation(fields: [product_id],references: [product_id])
+}
+
+model Transactions{
+  transaction_id    String       @id     @default(uuid())
+  product_id        String
+  buyer_id          String
+  seller_id         String
+  amount            Decimal
+  payment_method    String    // like-> upi, credit card, Cash
+  status            Transaction_Status
+  transaction_date  DateTime              @default(now())
+
+
+  buyer   User   @relation(fields: [buyer_id], references: [user_id], name: "buyer_transaction")  
+  seller  User   @relation(fields: [seller_id], references: [user_id], name: "seller_transaction")
+  product           Products     @relation(fields: [product_id],references: [product_id])
 }
