@@ -34,8 +34,8 @@ model University{
   longitude         Float
   category          String
   description       String?
-  university_logo   String
-  user_count        Int          @default(0)
+  universityLogo   String
+  userCount        Int          @default(0)
   createdAt         DateTime     @default(now())
   
   services          Services[]
@@ -47,24 +47,24 @@ model University{
 model User{
   user_id          String        @id           @default(uuid())
   university_id    String           
-  user_university  University    @relation(fields: [university_id ], references: [university_id])
-  user_name        String       
-  user_email       String        @unique
-  user_mobile_no   String?       @unique
-  hashed_password  String   
-  user_avtar       String
+  userUniversity  University    @relation(fields: [university_id ], references: [university_id])
+  userName        String       
+  userEmail       String        @unique
+  userMobileNo   String?       @unique
+  hashedPassword  String   
+  userAvtar       String
   role             Role         @default(BUYER)    
   isVerified       Boolean      @default(false)
-  user_createdAt   DateTime      @default(now())
+  userCreatedAt   DateTime      @default(now())
 
 
-  user_purchases   Purchases[]
-  user_cart        Cart[]
-  user_products    Products[]
-  user_services    Services[] 
-  user_orders      Orders[]
-  buyer_transactions  Transactions[]  @relation(name: "buyer_transaction")  
-  seller_transactions Transactions[]  @relation(name: "seller_transaction") 
+  userPurchases   Purchases[]
+  userCart        Cart[]
+  userProducts    Products[]
+  userServices    Services[] 
+  userOrders      Orders[]
+  buyerTransactions  Transactions[]  @relation(name: "buyer_transaction")  
+  sellerTransactions Transactions[]  @relation(name: "seller_transaction") 
   
 
 }
@@ -94,7 +94,7 @@ model Services{
   name              String
   description       String?
   price             Decimal
-  service_type      String        //"asignment","project help", "bike rent" etc ....
+  serviceType      String        //"asignment","project help", "bike rent" etc ....
   createdAt         DateTime       @default(now())
 
   user              User           @relation(fields: [user_id],references: [user_id])
@@ -107,7 +107,7 @@ model Purchases{
   product_id        String
   amount            Decimal
   status            Order_Status   @default(PLACED)
-  purchase_date     DateTime       @default(now())
+  purchaseDate     DateTime       @default(now())
 
 
   user              User           @relation(fields: [user_id],references: [user_id])
@@ -136,7 +136,7 @@ model Orders{
   totalPrice        Decimal
   paymentStatus     Transaction_Status    
   createdAt         DateTime       @default(now())  
-  delivery_date     DateTime?
+  deliveryDate     DateTime?
 
   user              User          @relation(fields: [user_id],references: [user_id])
   product           Products      @relation(fields: [product_id],references: [product_id])
@@ -148,9 +148,9 @@ model Transactions{
   buyer_id          String
   seller_id         String
   amount            Decimal
-  payment_method    String    // like-> upi, credit card, Cash
+  paymentMethod    String    // like-> upi, credit card, Cash
   status            Transaction_Status
-  transaction_date  DateTime              @default(now())
+  transactionDate  DateTime              @default(now())
 
 
   buyer   User   @relation(fields: [buyer_id], references: [user_id], name: "buyer_transaction")  
