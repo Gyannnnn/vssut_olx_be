@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addNewUniversity = exports.getUniversity = void 0;
+exports.deleteUniversity = exports.addNewUniversity = exports.getUniversity = void 0;
 const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
 const getUniversity = (req, res) => {
@@ -43,6 +43,17 @@ const addNewUniversity = (req, res) => __awaiter(void 0, void 0, void 0, functio
         });
     }
     try {
+        const isAlreadyExist = yield prisma.university.findMany({
+            where: {
+                name
+            }
+        });
+        if (isAlreadyExist.length > 0) {
+            res.status(400).json({
+                message: "University Already exist !"
+            });
+            return;
+        }
         const newUniversity = yield prisma.university.create({
             data: {
                 name,
@@ -63,7 +74,8 @@ const addNewUniversity = (req, res) => __awaiter(void 0, void 0, void 0, functio
             return;
         }
         res.status(200).json({
-            message: `Successfully Added new ${category.toUpperCase()}`
+            message: `Successfully Added new ${category.toUpperCase()}`,
+            newUniversity
         });
     }
     catch (error) {
@@ -74,3 +86,55 @@ const addNewUniversity = (req, res) => __awaiter(void 0, void 0, void 0, functio
     }
 });
 exports.addNewUniversity = addNewUniversity;
+// Deletes a  University 🖣
+const deleteUniversity = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { name } = req.body;
+    try {
+        if (!name || name.trim() === "") {
+            res.status(400).json({
+                message: "All fields are required !"
+            });
+            return;
+        }
+    }
+    catch (error) {
+        console.log(`Error in validating field : ${error}`);
+        return;
+    }
+    try {
+        const isExist = yield prisma.university.findFirst({
+            where: {
+                name
+            }
+        });
+        if (!isExist) {
+            res.status(400).json({
+                message: "University does not exist"
+            });
+            return;
+        }
+        const result = yield prisma.university.delete({
+            where: {
+                name
+            }
+        });
+        if (!result) {
+            res.status(400).json({
+                message: `Failed to delete ${name}`
+            });
+            return;
+        }
+        res.json({
+            message: `Succesfully deleted ${name}`,
+            result
+        });
+    }
+    catch (error) {
+        const err = error;
+        console.log(err.message);
+        res.status(400).json({
+            message: err.message
+        });
+    }
+});
+exports.deleteUniversity = deleteUniversity;
