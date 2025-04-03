@@ -1,1 +1,1 @@
-{"root":["./src/index.ts","./src/Controller/university.controller.ts","./src/Routes/university.routes.ts"],"version":"5.7.2"}
+{"root":["./src/index.ts","./src/Controller/university.controller.ts","./src/Controller/user.controller.ts","./src/Routes/university.routes.ts","./src/Routes/user.routes.ts"],"version":"5.7.2"}

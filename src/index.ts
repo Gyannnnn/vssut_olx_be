@@ -9,14 +9,14 @@ import cors from 'cors'
 // File imports 🖣
 
 import universityRouter from './Routes/university.routes';
+import userRouter from './Routes/user.routes';
 
 
-const app = express()
 
 
 
 // Middlewares 🖣
-
+const app = express()
 app.use(express.json())
 app.use(cors())
 
@@ -31,6 +31,7 @@ app.get("/",(req,res)=>{
 // Middleware Routes 🖣
 
 app.use("/api/v1/university",universityRouter);
+app.use("/api/v1/user",userRouter);
 
 
 

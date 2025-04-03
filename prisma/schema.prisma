@@ -49,7 +49,7 @@ model User{
   userEmail       String        @unique
   userMobileNo   String?       @unique
   hashedPassword  String   
-  userAvtar       String
+  userAvtar       String?
   role             Role         @default(BUYER)    
   isVerified       Boolean      @default(false)
   userCreatedAt   DateTime      @default(now())

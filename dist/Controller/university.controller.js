@@ -14,43 +14,49 @@ const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
 const getUniversity = (req, res) => {
     res.json({
-        message: "Hello From University controller"
+        message: "Hello From University controller",
     });
 };
 exports.getUniversity = getUniversity;
 // Creates A New University 🖣
 const addNewUniversity = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { name, address, zipcode, latitude, longitude, category, description, universityLogo, userCount } = req.body;
+    const { name, address, zipcode, latitude, longitude, category, description, universityLogo, userCount, } = req.body;
     try {
-        if (!name || name.trim() === "" ||
-            !address || address.trim() === "" ||
+        if (!name ||
+            name.trim() === "" ||
+            !address ||
+            address.trim() === "" ||
             !zipcode ||
             !latitude ||
             !longitude ||
-            !category || category.trim() === "" ||
-            !description || description.trim() === "" ||
-            !universityLogo || universityLogo.trim() === "" ||
-            !userCount || userCount === null) {
+            !category ||
+            category.trim() === "" ||
+            !description ||
+            description.trim() === "" ||
+            !universityLogo ||
+            universityLogo.trim() === "" ||
+            !userCount ||
+            userCount === null) {
             res.status(400).json({
-                message: "All fields are required!"
+                message: "All fields are required!",
             });
             return;
         }
     }
     catch (error) {
         res.json({
-            message: "Error in field validation check the data"
+            message: "Error in field validation check the data",
         });
     }
     try {
         const isAlreadyExist = yield prisma.university.findMany({
             where: {
-                name
-            }
+                name,
+            },
         });
         if (isAlreadyExist.length > 0) {
             res.status(400).json({
-                message: "University Already exist !"
+                message: "University Already exist !",
             });
             return;
         }
@@ -64,24 +70,24 @@ const addNewUniversity = (req, res) => __awaiter(void 0, void 0, void 0, functio
                 category,
                 description,
                 universityLogo,
-                userCount
-            }
+                userCount,
+            },
         });
         if (!newUniversity) {
             res.status(400).json({
-                message: "Failed to create university"
+                message: "Failed to create university",
             });
             return;
         }
         res.status(200).json({
             message: `Successfully Added new ${category.toUpperCase()}`,
-            newUniversity
+            newUniversity,
         });
     }
     catch (error) {
         const err = error;
         res.status(400).json({
-            message: err
+            message: err,
         });
     }
 });
@@ -92,7 +98,7 @@ const deleteUniversity = (req, res) => __awaiter(void 0, void 0, void 0, functio
     try {
         if (!name || name.trim() === "") {
             res.status(400).json({
-                message: "All fields are required !"
+                message: "All fields are required !",
             });
             return;
         }
@@ -104,36 +110,36 @@ const deleteUniversity = (req, res) => __awaiter(void 0, void 0, void 0, functio
     try {
         const isExist = yield prisma.university.findFirst({
             where: {
-                name
-            }
+                name,
+            },
         });
         if (!isExist) {
             res.status(400).json({
-                message: "University does not exist"
+                message: "University does not exist",
             });
             return;
         }
         const result = yield prisma.university.delete({
             where: {
-                name
-            }
+                name,
+            },
         });
         if (!result) {
             res.status(400).json({
-                message: `Failed to delete ${name}`
+                message: `Failed to delete ${name}`,
             });
             return;
         }
         res.json({
             message: `Succesfully deleted ${name}`,
-            result
+            result,
         });
     }
     catch (error) {
         const err = error;
         console.log(err.message);
         res.status(400).json({
-            message: err.message
+            message: err.message,
         });
     }
 });
