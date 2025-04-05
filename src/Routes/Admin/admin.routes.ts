@@ -3,10 +3,10 @@ const adminRouter = Router();
 
 //Admin controller module imports  🖣
 
-import { createAdmin } from "../Controller/admin.controller";
-import { adminSignin } from "../Controller/admin.controller";
-import { deleteAdmin } from "../Controller/admin.controller";
-import { getAllAdmins } from "../Controller/admin.controller";
+import { createAdmin } from "../../Controller/Admin/admin.controller";
+import { adminSignin } from "../../Controller/Admin/admin.controller";
+import { deleteAdmin } from "../../Controller/Admin/admin.controller";
+import { getAllAdmins } from "../../Controller/Admin/admin.controller";
 
 
 

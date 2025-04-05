@@ -3,11 +3,11 @@ const userRouter = Router();
 
 // User controller module {signUp,signIn,update,delete,getall} imports 🖣
 
-import { getAllUsers } from "../Controller/user.controller";
-import { signUp } from "../Controller/user.controller";
-import { signIn } from "../Controller/user.controller";
-import { updateUser } from "../Controller/user.controller";
-import { deleteUser } from "../Controller/user.controller";
+import { getAllUsers } from "../../Controller/user/user.controller";
+import { signUp } from "../../Controller/user/user.controller";
+import { signIn } from "../../Controller/user/user.controller";
+import { updateUser } from "../../Controller/user/user.controller";
+import { deleteUser } from "../../Controller/user/user.controller";
 
 // user routes 🖣
 

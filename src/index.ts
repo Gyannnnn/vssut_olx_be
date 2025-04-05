@@ -8,9 +8,9 @@ import cors from 'cors'
 
 // File imports 🖣
 
-import universityRouter from './Routes/university.routes';
-import userRouter from './Routes/user.routes';
-import adminRouter from './Routes/admin.routes';
+import universityRouter from './Routes/University/university.routes';
+import userRouter from './Routes/User/user.routes';
+import adminRouter from './Routes/Admin/admin.routes';
 
 
 

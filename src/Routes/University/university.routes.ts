@@ -4,9 +4,9 @@ const universityRouter = Router()
 
 
 // file imports 🖣
-import { getUniversity } from "../Controller/university.controller";
-import { addNewUniversity } from "../Controller/university.controller";
-import { deleteUniversity } from "../Controller/university.controller";
+import { getUniversity } from "../../Controller/University/university.controller";
+import { addNewUniversity } from "../../Controller/University/university.controller";
+import { deleteUniversity } from "../../Controller/University/university.controller";
 
 // Routes 🖣
 universityRouter.get("/",getUniversity);

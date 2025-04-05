@@ -8,9 +8,9 @@ require('dotenv').config();
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 // File imports 🖣
-const university_routes_1 = __importDefault(require("./Routes/university.routes"));
-const user_routes_1 = __importDefault(require("./Routes/user.routes"));
-const admin_routes_1 = __importDefault(require("./Routes/admin.routes"));
+const university_routes_1 = __importDefault(require("./Routes/University/university.routes"));
+const user_routes_1 = __importDefault(require("./Routes/User/user.routes"));
+const admin_routes_1 = __importDefault(require("./Routes/Admin/admin.routes"));
 // Middlewares 🖣
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
