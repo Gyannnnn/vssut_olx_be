@@ -46,8 +46,8 @@ model User{
   university_id    String           
   userUniversity  University    @relation(fields: [university_id ], references: [university_id])
   userName        String       
-  userEmail       String        @unique
-  userMobileNo   String?       @unique
+  userEmail       String?        
+  userMobileNo   String       @unique
   hashedPassword  String   
   userAvtar       String?
   role             Role         @default(BUYER)    
