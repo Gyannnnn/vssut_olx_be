@@ -17,7 +17,6 @@ enum Transaction_Status{
   NOT_PAID
 }
 enum Role{
-  ADMIN
   SELLER
   BUYER
 }
@@ -34,17 +33,21 @@ model University{
   universityLogo        String
   userCount             Int          @default(0)
   createdAt             DateTime     @default(now())
+
+  
   
   services              Services[]
   products              Products[]
   users                 User[]
+  admin                 Admin[]      @relation("admin")
+  
   
 }
 
 model User{
   user_id               String        @id           @default(uuid())
-  university_id         String           
-  userUniversity        University    @relation(fields: [university_id ], references: [university_id])
+  university_id         String?          
+  userUniversity        University?    @relation(fields: [university_id ], references: [university_id],onDelete: SetNull)
   userUniversityName    String
   userName              String       
   userEmail             String?        
@@ -65,6 +68,17 @@ model User{
   sellerTransactions    Transactions[]  @relation(name: "seller_transaction") 
   
 
+}
+model Admin{
+  admin_id             String         @id           @default(uuid())
+  adminName            String  
+  adminEmail           String         @unique
+  adminMobileNo        String         @unique
+  adminAddress         String
+  adminPassword        String
+
+
+  AllotedUniversities  University[] @relation("admin")     
 }
 model Products{
   product_id            String         @id          @default(uuid())    

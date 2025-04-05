@@ -10,7 +10,7 @@ import cors from 'cors'
 
 import universityRouter from './Routes/university.routes';
 import userRouter from './Routes/user.routes';
-
+import adminRouter from './Routes/admin.routes';
 
 
 
@@ -32,6 +32,7 @@ app.get("/",(req,res)=>{
 
 app.use("/api/v1/university",universityRouter);
 app.use("/api/v1/user",userRouter);
+app.use("/api/v1/admin",adminRouter)
 
 
 

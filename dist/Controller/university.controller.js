@@ -71,6 +71,11 @@ const addNewUniversity = (req, res) => __awaiter(void 0, void 0, void 0, functio
                 description,
                 universityLogo,
                 userCount,
+                admin: {
+                    connect: [
+                        { admin_id: "" },
+                    ]
+                }
             },
         });
         if (!newUniversity) {

@@ -10,6 +10,7 @@ const cors_1 = __importDefault(require("cors"));
 // File imports 🖣
 const university_routes_1 = __importDefault(require("./Routes/university.routes"));
 const user_routes_1 = __importDefault(require("./Routes/user.routes"));
+const admin_routes_1 = __importDefault(require("./Routes/admin.routes"));
 // Middlewares 🖣
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
@@ -23,6 +24,7 @@ app.get("/", (req, res) => {
 // Middleware Routes 🖣
 app.use("/api/v1/university", university_routes_1.default);
 app.use("/api/v1/user", user_routes_1.default);
+app.use("/api/v1/admin", admin_routes_1.default);
 app.listen(process.env.PORT || 3000, () => {
     console.log(`Server is running at http://localhost:${process.env.PORT || 3000}`);
 });

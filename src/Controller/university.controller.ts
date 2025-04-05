@@ -75,6 +75,12 @@ export const addNewUniversity = async (req: Request, res: Response) => {
         description,
         universityLogo,
         userCount,
+        admin:{
+          connect:[
+            {admin_id:""},           
+            
+          ]
+        }
       },
     });
     if (!newUniversity) {
