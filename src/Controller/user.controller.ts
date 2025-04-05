@@ -56,6 +56,12 @@ export const signUp = async (req: Request, res: Response) => {
       });
       return;
     }
+    const userUniversity = await prisma.university.findFirst({
+        where:{
+            university_id:userUniversityId
+        }
+    });
+
     const newUser = await prisma.user.create({
       data: {
         userName,
@@ -65,6 +71,8 @@ export const signUp = async (req: Request, res: Response) => {
         userUniversity: {
           connect: { university_id: userUniversityId },
         },
+        userUniversityName:userUniversity?.name as string
+        
       },
     });
     const token = jwt.sign(

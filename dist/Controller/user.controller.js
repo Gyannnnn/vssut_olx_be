@@ -18,6 +18,7 @@ const client_1 = require("@prisma/client");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const prisma = new client_1.PrismaClient();
+// It finds all Signed up users and returns the array of users 🖣
 const getAllUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const allUsers = yield prisma.user.findMany();
@@ -39,6 +40,7 @@ const getAllUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
 });
 exports.getAllUsers = getAllUsers;
+// User signup/creates  🖣
 const signUp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { userName, userEmail, userMobileNo, password, userUniversityId } = req.body;
     if (!(userName === null || userName === void 0 ? void 0 : userName.trim()) ||
@@ -62,6 +64,11 @@ const signUp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             });
             return;
         }
+        const userUniversity = yield prisma.university.findFirst({
+            where: {
+                university_id: userUniversityId
+            }
+        });
         const newUser = yield prisma.user.create({
             data: {
                 userName,
@@ -71,6 +78,7 @@ const signUp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 userUniversity: {
                     connect: { university_id: userUniversityId },
                 },
+                userUniversityName: userUniversity === null || userUniversity === void 0 ? void 0 : userUniversity.name
             },
         });
         const token = jsonwebtoken_1.default.sign({ userMobileNo }, process.env.JWT_SECRET || "ihqvu9eirhgiuvhwou8rehg89uh3yrwhquighreuigh", { expiresIn: "24h" });
@@ -94,6 +102,7 @@ const signUp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.signUp = signUp;
+//  User sign in  🖣
 const signIn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { userMobileNo, password } = req.body;
     if (!(userMobileNo === null || userMobileNo === void 0 ? void 0 : userMobileNo.trim()) || !(password === null || password === void 0 ? void 0 : password.trim())) {
@@ -135,6 +144,7 @@ const signIn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.signIn = signIn;
+// Updates a user {user name, user email , user university}  🖣
 const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { userName, userEmail, userMobileNo, userUniversityId } = req.body;
     if (!(userName === null || userName === void 0 ? void 0 : userName.trim()) ||
@@ -188,6 +198,7 @@ const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.updateUser = updateUser;
+// Deletes a user by its user id sent in params 🖣
 const deleteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { user_id } = req.params;
     try {

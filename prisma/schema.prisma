@@ -23,134 +23,135 @@ enum Role{
 }
 
 model University{
-  university_id     String      @id                  @default(uuid()) 
-  name              String      @unique
-  address           String
-  zipcode           Int
-  latitude          Float
-  longitude         Float
-  category          String
-  description       String?
-  universityLogo   String
-  userCount        Int          @default(0)
-  createdAt         DateTime     @default(now())
+  university_id         String      @id                  @default(uuid()) 
+  name                  String      @unique
+  address               String
+  zipcode               Int
+  latitude              Float
+  longitude             Float
+  category              String
+  description           String?
+  universityLogo        String
+  userCount             Int          @default(0)
+  createdAt             DateTime     @default(now())
   
-  services          Services[]
-  products          Products[]
-  users             User[]
+  services              Services[]
+  products              Products[]
+  users                 User[]
   
 }
 
 model User{
-  user_id          String        @id           @default(uuid())
-  university_id    String           
-  userUniversity  University    @relation(fields: [university_id ], references: [university_id])
-  userName        String       
-  userEmail       String?        
-  userMobileNo   String       @unique
-  hashedPassword  String   
-  userAvtar       String?
-  role             Role         @default(BUYER)    
-  isVerified       Boolean      @default(false)
-  userCreatedAt   DateTime      @default(now())
+  user_id               String        @id           @default(uuid())
+  university_id         String           
+  userUniversity        University    @relation(fields: [university_id ], references: [university_id])
+  userUniversityName    String
+  userName              String       
+  userEmail             String?        
+  userMobileNo          String       @unique
+  hashedPassword        String   
+  userAvtar             String?
+  role                  Role         @default(BUYER)    
+  isVerified            Boolean      @default(false)
+  userCreatedAt         DateTime      @default(now())
 
 
-  userPurchases   Purchases[]
-  userCart        Cart[]
-  userProducts    Products[]
-  userServices    Services[] 
-  userOrders      Orders[]
-  buyerTransactions  Transactions[]  @relation(name: "buyer_transaction")  
-  sellerTransactions Transactions[]  @relation(name: "seller_transaction") 
+  userPurchases         Purchases[]
+  userCart              Cart[]
+  userProducts          Products[]
+  userServices          Services[] 
+  userOrders            Orders[]
+  buyerTransactions     Transactions[]  @relation(name: "buyer_transaction")  
+  sellerTransactions    Transactions[]  @relation(name: "seller_transaction") 
   
 
 }
 model Products{
-  product_id        String         @id          @default(uuid())    
-  user_id           String       
-  university_id     String
-  name              String
-  description       String?
-  price             Decimal
-  category          String
-  condition         String        //"new" or "used" usr slr will give 
-  imageUrl          String
-  createdAt         DateTime       @default(now())
+  product_id            String         @id          @default(uuid())    
+  user_id               String       
+  university_id         String
+  name                  String
+  description           String?
+  price                 Decimal
+  category              String
+  condition             String        //"new" or "used" usr slr will give 
+  imageUrl              String
+  createdAt             DateTime       @default(now())
 
-  user              User           @relation(fields: [user_id],references: [user_id]) 
-  university        University     @relation(fields: [university_id],references: [university_id])
-  orders            Orders[]
-  transaction       Transactions[]
-  purchases         Purchases[]
-  cart              Cart[]
+  user                  User           @relation(fields: [user_id],references: [user_id]) 
+  university            University     @relation(fields: [university_id],references: [university_id])
+  orders                Orders[]
+  transaction           Transactions[]
+  purchases             Purchases[]
+  cart                  Cart[]
 }
 model Services{
-  service_id        String         @id        @default(uuid())
-  user_id           String        
-  university_id     String
-  name              String
-  description       String?
-  price             Decimal
-  serviceType      String        //"asignment","project help", "bike rent" etc ....
-  createdAt         DateTime       @default(now())
+  service_id            String         @id        @default(uuid())
+  user_id               String        
+  university_id         String
+  name                  String
+  description           String?
+  price                 Decimal
+  serviceType           String        //"asignment","project help", "bike rent" etc ....
+  createdAt             DateTime       @default(now())
 
-  user              User           @relation(fields: [user_id],references: [user_id])
-  university        University     @relation(fields: [university_id],references: [university_id])
+  user                  User           @relation(fields: [user_id],references: [user_id])
+  university            University     @relation(fields: [university_id],references: [university_id])
 
 }
 model Purchases{
-  purchase_id       String         @id        @default(uuid())
-  user_id           String
-  product_id        String
-  amount            Decimal
-  status            Order_Status   @default(PLACED)
-  purchaseDate     DateTime       @default(now())
+  purchase_id           String         @id        @default(uuid())
+  user_id               String
+  product_id            String
+  amount                Decimal
+  status                Order_Status   @default(PLACED)
+  purchaseDate          DateTime       @default(now())
 
 
-  user              User           @relation(fields: [user_id],references: [user_id])
-  product           Products       @relation(fields: [product_id],references: [product_id])
+  user                  User           @relation(fields: [user_id],references: [user_id])
+  product               Products       @relation(fields: [product_id],references: [product_id])
   
 
 }
 
 model Cart{
-  id                String        @id       @default(uuid())
-  user_id           String
-  product_id        String
-  quantity          Int            @default(1)    
-  createdAt         DateTime       @default(now())
+  id                    String        @id       @default(uuid())
+  user_id               String
+  product_id            String
+  quantity              Int            @default(1)    
+  createdAt             DateTime       @default(now())
 
-  user              User           @relation(fields: [user_id],references: [user_id])
-  product           Products      @relation(fields: [product_id],references: [product_id])
+  user                  User           @relation(fields: [user_id],references: [user_id])
+  product               Products      @relation(fields: [product_id],references: [product_id])
 }
 
 model Orders{
-  order_id          String         @id                 @default(uuid())
-  status            Order_Status   @default(PLACED)
-  user_id           String
-  product_id        String
-  quantity          Int
-  totalPrice        Decimal
-  paymentStatus     Transaction_Status    
-  createdAt         DateTime       @default(now())  
-  deliveryDate     DateTime?
+  order_id              String         @id                 @default(uuid())
+  status                Order_Status   @default(PLACED)
+  user_id               String
+  product_id            String
+  quantity              Int
+  totalPrice            Decimal
+  paymentStatus         Transaction_Status    
+  createdAt             DateTime       @default(now())  
+  deliveryDate          DateTime?
 
-  user              User          @relation(fields: [user_id],references: [user_id])
-  product           Products      @relation(fields: [product_id],references: [product_id])
+  user                  User          @relation(fields: [user_id],references: [user_id])
+  product               Products      @relation(fields: [product_id],references: [product_id])
 }
 
 model Transactions{
-  transaction_id    String       @id     @default(uuid())
-  product_id        String
-  buyer_id          String
-  seller_id         String
-  amount            Decimal
-  paymentMethod    String    // like-> upi, credit card, Cash
-  status            Transaction_Status
-  transactionDate  DateTime              @default(now())
+  transaction_id        String       @id     @default(uuid())
+  product_id            String
+  buyer_id              String
+  seller_id             String
+  amount                Decimal
+  paymentMethod         String    // like-> upi, credit card, Cash
+  status                Transaction_Status
+  transactionDate       DateTime              @default(now())
 
 
-  buyer   User   @relation(fields: [buyer_id], references: [user_id], name: "buyer_transaction")  
-  seller  User   @relation(fields: [seller_id], references: [user_id], name: "seller_transaction")
-  product           Products     @relation(fields: [product_id],references: [product_id])
+  buyer                 User   @relation(fields: [buyer_id], references: [user_id], name: "buyer_transaction")  
+  seller                User   @relation(fields: [seller_id], references: [user_id], name: "seller_transaction")
+  product               Products     @relation(fields: [product_id],references: [product_id])
 }
