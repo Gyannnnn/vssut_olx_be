@@ -6,6 +6,8 @@ import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
+// It finds all Signed up users and returns the array of users 🖣
+
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
     const allUsers = await prisma.user.findMany();
@@ -25,6 +27,8 @@ export const getAllUsers = async (req: Request, res: Response) => {
     });
   }
 };
+
+// User signup/creates  🖣
 
 export const signUp = async (req: Request, res: Response) => {
   const { userName, userEmail, userMobileNo, password, userUniversityId } =
@@ -87,6 +91,8 @@ export const signUp = async (req: Request, res: Response) => {
   }
 };
 
+//  User sign in  🖣
+
 export const signIn = async (req: Request, res: Response) => {
   const { userMobileNo, password } = req.body;
   if (!userMobileNo?.trim() || !password?.trim()) {
@@ -133,6 +139,8 @@ export const signIn = async (req: Request, res: Response) => {
     });
   }
 };
+
+// Updates a user {user name, user email , user university}  🖣
 
 export const updateUser = async (req: Request, res: Response) => {
   const { userName, userEmail, userMobileNo, userUniversityId } =
@@ -190,6 +198,7 @@ export const updateUser = async (req: Request, res: Response) => {
   }
 };
 
+// Deletes a user by its user id sent in params 🖣
 
 export const deleteUser = async(req: Request, res: Response)=>{
     const{user_id} = req.params
