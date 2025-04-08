@@ -76,9 +76,18 @@ model Admin{
   adminMobileNo        String         @unique
   adminAddress         String
   adminPassword        String
+  adminAvatar          String?
 
 
   AllotedUniversities  University[] @relation("admin")     
+}
+model SuperAdmin{
+  superAdmin_id        String         @id          @default(uuid())
+  superAdminName       String         
+  superAdminEmail      String         @unique
+  superAdminPassword   String  
+  superAdminMobileNo   String         @unique       
+  superAdminAvatar     String
 }
 model Products{
   product_id            String         @id          @default(uuid())    
