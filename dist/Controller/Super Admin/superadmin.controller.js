@@ -18,6 +18,7 @@ const client_1 = require("@prisma/client");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const prisma = new client_1.PrismaClient();
+// creates a superadmin  🖣
 const createSuperAdmin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { superAdminName, superAdminEmail, superAdminPassword, superAdminAvatar, superAdminMobile } = req.body;
     if (!(superAdminName === null || superAdminName === void 0 ? void 0 : superAdminName.trim()) || !(superAdminEmail === null || superAdminEmail === void 0 ? void 0 : superAdminEmail.trim()) || !(superAdminPassword === null || superAdminPassword === void 0 ? void 0 : superAdminPassword.trim()) || !(superAdminAvatar === null || superAdminAvatar === void 0 ? void 0 : superAdminAvatar.trim()) || !(superAdminMobile === null || superAdminMobile === void 0 ? void 0 : superAdminMobile.trim())) {
@@ -69,6 +70,7 @@ const createSuperAdmin = (req, res) => __awaiter(void 0, void 0, void 0, functio
     }
 });
 exports.createSuperAdmin = createSuperAdmin;
+// 🖣 Super admin signin
 const superAdminSignin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { superAdminEmail, superAdminPassword } = req.body;
     if (!(superAdminEmail === null || superAdminEmail === void 0 ? void 0 : superAdminEmail.trim()) || !(superAdminPassword === null || superAdminPassword === void 0 ? void 0 : superAdminPassword.trim())) {

@@ -77,7 +77,7 @@ export const addNewUniversity = async (req: Request, res: Response) => {
         userCount,
         admin:{
           connect:[
-            {admin_id:""},           
+            {admin_id:"c3c1fbf2-d7c0-4c6f-bba7-3a81398ccf6f"},           
             
           ]
         }
