@@ -21,6 +21,14 @@ enum Role{
   BUYER
 }
 
+enum ServiceType{
+  PROJECT_HELP
+  ASSIGNMENT_HELP
+  BIKE_RENTAL
+  TAXI_BOOKING
+  RESTURANT
+}
+
 model University{
   university_id         String      @id                  @default(uuid()) 
   name                  String      @unique
@@ -100,6 +108,7 @@ model Products{
   condition             String        //"new" or "used" usr slr will give 
   imageUrl              String
   createdAt             DateTime       @default(now())
+  isApproved            Boolean        @default(false)
 
   user                  User           @relation(fields: [user_id],references: [user_id]) 
   university            University     @relation(fields: [university_id],references: [university_id])
@@ -115,13 +124,109 @@ model Services{
   name                  String
   description           String?
   price                 Decimal
-  serviceType           String        //"asignment","project help", "bike rent" etc ....
-  createdAt             DateTime       @default(now())
+  serviceType           ServiceType        //"asignment","project help", "bike rent" etc ....
+  createdAt             DateTime       @default(now())  
+             
 
   user                  User           @relation(fields: [user_id],references: [user_id])
   university            University     @relation(fields: [university_id],references: [university_id])
 
+  bikeRentals           BikeRetal[]
+
 }
+
+model BikeRetal{
+  id                   String     @id        @default(uuid())
+  serviceId            String
+  userId               String
+  bikeRentalName       String
+  bikeRentalDescription  String
+  bikeRentalAddress    String
+  rentPerHour          String
+  available            Boolean     @default(true)
+  idApproved           Boolean     @default(false)
+  createdAt            DateTime    @default(now())
+  rating               Float?      @default(0)
+  bikeRentalBanner     String?
+  
+
+  service              Services    @relation(fields: [serviceId],references: [service_id])
+  products             BikeRetalProducts[]
+  reviews              BikeRentalReviews[]
+}
+model BikeRetalProducts{
+  id                    String     @id       @default(uuid()) 
+  rentalServiceId       String
+  bikeName              String
+  bikeDetails           String
+  bikeNumberPlate       String
+  anyNoteForRiders      String?
+  pricePerHour          Float
+  bikeImage             String
+  bikeImage2            String?
+  bikeImage3            String?
+  bikeImage4            String 
+  likes                 Int          @default(0)      
+  isAvailble            Boolean      @default(true)
+
+  bikeRentalService     BikeRetal    @relation(fields: [rentalServiceId],references: [id])
+}
+
+model BikeRentalReviews{
+  reviewId             String        @id      @default(uuid())
+  rentalServiceId      String
+  review               String
+  likes                Int           @default(0)
+  disLikes             Int           @default(0) 
+
+  bikeRentalService    BikeRetal     @relation(fields: [rentalServiceId],references: [id])
+}
+
+model Resturant{
+  resturantId           String      @id          @default(uuid())
+  resturantsName        String
+  resturantDetails      String
+  resturantAddress      String
+  userId                String
+  ServiceTime           DateTime
+  homeDeliveryService   Boolean      @default(true)
+  isOpen                Boolean      @default(true)
+  menu                  String?
+  menuImage             String?  
+  resturantBanner       String?   
+  rating                Float?        @default(0)        
+
+  resturantProducts     ResturantProducts[]
+  resturantReviews      ResturantReviews[]
+
+}
+
+model ResturantProducts{
+  productId             String      @id            @default(uuid())
+  resturantId           String
+  foodName              String
+  foodDescription       String
+  likes                 Int          @default(0)
+  foodPrice             Float
+  isAvailable           Boolean      @default(true)
+  foodImage             String
+  foodImage2            String?
+  foodImage3            String?
+
+  resturant             Resturant     @relation(fields: [resturantId],references: [resturantId])
+}
+
+model ResturantReviews{
+  reviewId             String        @id          @default(uuid())
+  resturantId          String
+  review               String
+  likes                Int           @default(0)
+  dislikes             Int            @default(0)
+
+  resturant            Resturant      @relation(fields: [resturantId],references: [resturantId])
+}
+
+
 model Purchases{
   purchase_id           String         @id        @default(uuid())
   user_id               String
