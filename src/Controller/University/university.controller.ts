@@ -22,6 +22,7 @@ export const addNewUniversity = async (req: Request, res: Response) => {
     description,
     universityLogo,
     userCount,
+    admin_id
   } = req.body;
 
   try {
@@ -40,7 +41,7 @@ export const addNewUniversity = async (req: Request, res: Response) => {
       !universityLogo ||
       universityLogo.trim() === "" ||
       !userCount ||
-      userCount === null
+      userCount === null || !admin_id?.trim()
     ) {
       res.status(400).json({
         message: "All fields are required!",
@@ -77,7 +78,7 @@ export const addNewUniversity = async (req: Request, res: Response) => {
         userCount,
         admin:{
           connect:[
-            {admin_id:"c3c1fbf2-d7c0-4c6f-bba7-3a81398ccf6f"},           
+            {admin_id:admin_id},           
             
           ]
         }
