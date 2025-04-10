@@ -26,12 +26,19 @@ enum ServiceType{
   ASSIGNMENT_HELP
   BIKE_RENTAL
   TAXI_BOOKING
-  RESTURANT
+  RESTAURANT
 }
 
+enum ProductCondition {
+  NEW
+  USED
+}
+
+
+
 model University{
-  university_id         String      @id                  @default(uuid()) 
-  name                  String      @unique
+  university_id         String       @id                  @default(uuid()) 
+  name                  String       @unique
   address               String
   zipcode               Int
   latitude              Float
@@ -39,32 +46,32 @@ model University{
   category              String
   description           String?
   universityLogo        String
-  userCount             Int          @default(0)
-  createdAt             DateTime     @default(now())
+  userCount             Int           @default(0)
+  createdAt             DateTime      @default(now())
 
   
   
   services              Services[]
   products              Products[]
   users                 User[]
-  admin                 Admin[]      @relation("admin")
+  admin                 Admin[]       @relation("admin")
   
   
 }
 
 model User{
-  user_id               String        @id           @default(uuid())
+  user_id               String         @id           @default(uuid())
   university_id         String?          
   userUniversity        University?    @relation(fields: [university_id ], references: [university_id],onDelete: SetNull)
   userUniversityName    String
   userName              String       
   userEmail             String?        
-  userMobileNo          String       @unique
+  userMobileNo          String         @unique
   hashedPassword        String   
   userAvtar             String?
-  role                  Role         @default(BUYER)    
-  isVerified            Boolean      @default(false)
-  userCreatedAt         DateTime      @default(now())
+  role                  Role           @default(BUYER)    
+  isVerified            Boolean        @default(false)
+  userCreatedAt         DateTime       @default(now())
 
 
   userPurchases         Purchases[]
@@ -78,208 +85,268 @@ model User{
 
 }
 model Admin{
-  admin_id             String         @id           @default(uuid())
-  adminName            String  
-  adminEmail           String         @unique
-  adminMobileNo        String         @unique
-  adminAddress         String
-  adminPassword        String
-  adminAvatar          String?
+  admin_id               String         @id           @default(uuid())
+  adminName              String  
+  adminEmail             String         @unique
+  adminMobileNo          String         @unique
+  adminAddress           String
+  adminPassword          String
+  adminAvatar            String?
 
 
   AllotedUniversities  University[] @relation("admin")     
 }
 model SuperAdmin{
-  superAdmin_id        String         @id          @default(uuid())
-  superAdminName       String         
-  superAdminEmail      String         @unique
-  superAdminPassword   String  
-  superAdminMobileNo   String         @unique       
-  superAdminAvatar     String
+  superAdmin_id          String         @id          @default(uuid())
+  superAdminName         String         
+  superAdminEmail        String         @unique
+  superAdminPassword     String  
+  superAdminMobileNo     String         @unique       
+  superAdminAvatar       String
 }
 model Products{
-  product_id            String         @id          @default(uuid())    
-  user_id               String       
-  university_id         String
-  name                  String
-  description           String?
-  price                 Decimal
-  category              String
-  condition             String        //"new" or "used" usr slr will give 
-  imageUrl              String
-  createdAt             DateTime       @default(now())
-  isApproved            Boolean        @default(false)
+  product_id               String         @id          @default(uuid())    
+  user_id                  String       
+  university_id            String
+  name                     String
+  description              String?
+  price                    Decimal
+  category                 String
+  condition                ProductCondition        //"new" or "used" usr slr will give 
+  imageUrl                 String
+  createdAt                DateTime       @default(now())
+  isApproved               Boolean        @default(false)
 
-  user                  User           @relation(fields: [user_id],references: [user_id]) 
-  university            University     @relation(fields: [university_id],references: [university_id])
-  orders                Orders[]
-  transaction           Transactions[]
-  purchases             Purchases[]
-  cart                  Cart[]
+  user                     User           @relation(fields: [user_id],references: [user_id]) 
+  university               University     @relation(fields: [university_id],references: [university_id])
+  orders                   Orders[]
+  transaction              Transactions[]
+  purchases                Purchases[]
+  cart                     Cart[]
 }
 model Services{
-  service_id            String         @id        @default(uuid())
-  user_id               String        
-  university_id         String
-  name                  String
-  description           String?
-  price                 Decimal
-  serviceType           ServiceType        //"asignment","project help", "bike rent" etc ....
-  createdAt             DateTime       @default(now())  
+  service_id               String         @id        @default(uuid())
+  user_id                  String        
+  university_id            String
+  name                     String
+  description              String?
+  price                    Decimal
+  serviceType              ServiceType        //"asignment","project help", "bike rent" etc ....
+  createdAt                DateTime       @default(now())  
              
 
-  user                  User           @relation(fields: [user_id],references: [user_id])
-  university            University     @relation(fields: [university_id],references: [university_id])
+  user                     User           @relation(fields: [user_id],references: [user_id])
+  university               University     @relation(fields: [university_id],references: [university_id])
 
-  bikeRentals           BikeRetal[]
+  bikeRentals              BikeRental[]
+  restaurant               Restaurant[]
 
 }
 
-model BikeRetal{
-  id                   String     @id        @default(uuid())
-  serviceId            String
-  userId               String
-  bikeRentalName       String
-  bikeRentalDescription  String
-  bikeRentalAddress    String
-  rentPerHour          String
-  available            Boolean     @default(true)
-  idApproved           Boolean     @default(false)
-  createdAt            DateTime    @default(now())
-  rating               Float?      @default(0)
-  bikeRentalBanner     String?
+model BikeRental{
+  id                       String       @id        @default(uuid())
+  serviceId                String
+  userId                   String
+  bikeRentalName           String
+  bikeRentalDescriptionn   String
+  bikeRentalAddress        String
+  rentPerHour              String
+  available                Boolean      @default(true)
+  isApproved               Boolean      @default(false)
+  createdAt                DateTime     @default(now())
+  rating                   Float?       @default(0)
+  bikeRentalBanner         String?
   
 
-  service              Services    @relation(fields: [serviceId],references: [service_id])
-  products             BikeRetalProducts[]
-  reviews              BikeRentalReviews[]
+  service                  Services     @relation(fields: [serviceId],references: [service_id])
+  products                 BikeRetalProducts[]
+  reviews                  BikeRentalReviews[]
+
+  @@index([isApproved,rentPerHour,available,rating])
 }
 model BikeRetalProducts{
-  id                    String     @id       @default(uuid()) 
-  rentalServiceId       String
-  bikeName              String
-  bikeDetails           String
-  bikeNumberPlate       String
-  anyNoteForRiders      String?
-  pricePerHour          Float
-  bikeImage             String
-  bikeImage2            String?
-  bikeImage3            String?
-  bikeImage4            String 
-  likes                 Int          @default(0)      
-  isAvailble            Boolean      @default(true)
+  id                       String       @id       @default(uuid()) 
+  rentalServiceId          String
+  bikeName                 String
+  bikeDetails              String
+  bikeNumberPlate          String
+  anyNoteForRiders         String?
+  pricePerHour             Float      
+  bikeImage                String
+  bikeImage2               String?
+  bikeImage3               String?
+  bikeImage4               String 
+  likes                    Int           @default(0)      
+  isAvailble               Boolean       @default(true)
 
-  bikeRentalService     BikeRetal    @relation(fields: [rentalServiceId],references: [id])
+  bikeRentalService        BikeRental    @relation(fields: [rentalServiceId],references: [id])
+
+  @@index([pricePerHour,bikeName])
 }
 
 model BikeRentalReviews{
-  reviewId             String        @id      @default(uuid())
-  rentalServiceId      String
-  review               String
-  likes                Int           @default(0)
-  disLikes             Int           @default(0) 
+  reviewId                 String         @id      @default(uuid())
+  rentalServiceId          String
+  review                   String
+  likes                    Int            @default(0)
+  disLikes                 Int            @default(0) 
+  userName                 String
 
-  bikeRentalService    BikeRetal     @relation(fields: [rentalServiceId],references: [id])
+  bikeRentalService        BikeRental     @relation(fields: [rentalServiceId],references: [id])
 }
 
-model Resturant{
-  resturantId           String      @id          @default(uuid())
-  resturantsName        String
-  resturantDetails      String
-  resturantAddress      String
-  userId                String
-  ServiceTime           DateTime
-  homeDeliveryService   Boolean      @default(true)
-  isOpen                Boolean      @default(true)
-  menu                  String?
-  menuImage             String?  
-  resturantBanner       String?   
-  rating                Float?        @default(0)        
+model Restaurant{ 
+  restaurantId             String          @id          @default(uuid())
+  serviceId                String
+  restaurantsName          String
+  restaurantDetails        String
+  restaurantAddress        String
+  isApproved               Boolean         @default(false)
+  userId                   String
+  serviceTime              DateTime
+  homeDeliveryService      Boolean         @default(true)
+  isOpen                   Boolean         @default(true)
+  menu                     String?
+  menuImage                String?  
+  restaurantBanner         String?   
+  rating                   Float?          @default(0)  
+  service                  Services        @relation(fields: [serviceId],references: [service_id])      
 
-  resturantProducts     ResturantProducts[]
-  resturantReviews      ResturantReviews[]
+  restaurantProducts       RestaurantProducts[]
+  restaurantReviews        RestaurantReviews[]
+
+  @@index([isOpen,homeDeliveryService,restaurantsName,rating,isApproved])
 
 }
 
-model ResturantProducts{
-  productId             String      @id            @default(uuid())
-  resturantId           String
-  foodName              String
-  foodDescription       String
-  likes                 Int          @default(0)
-  foodPrice             Float
-  isAvailable           Boolean      @default(true)
-  foodImage             String
-  foodImage2            String?
-  foodImage3            String?
+model RestaurantProducts{
+  productId                 String          @id            @default(uuid())
+  restaurantId              String
+  foodName                  String
+  foodDescription           String
+  likes                     Int             @default(0)
+  foodPrice                 Float
+  isAvailable               Boolean         @default(true)
+  foodImage                 String
+  foodImage2                String?
+  foodImage3                String?
 
-  resturant             Resturant     @relation(fields: [resturantId],references: [resturantId])
+  restaurant             Restaurant         @relation(fields: [restaurantId],references: [restaurantId])
+  @@index([foodPrice,likes,foodName])
 }
 
-model ResturantReviews{
-  reviewId             String        @id          @default(uuid())
-  resturantId          String
-  review               String
-  likes                Int           @default(0)
-  dislikes             Int            @default(0)
+model RestaurantReviews{
+  reviewId                   String          @id          @default(uuid())
+  restaurantId               String
+  review                     String
+  likes                      Int             @default(0)
+  dislikes                   Int             @default(0)
+  userName                   String
 
-  resturant            Resturant      @relation(fields: [resturantId],references: [resturantId])
+  restaurant                 Restaurant      @relation(fields: [restaurantId],references: [restaurantId])
 }
+
+model TaxiBooking{
+  taxiBookingId               String         @id        @default(uuid())
+  TaxiBookingName             String
+  driverName                  String
+  taxiNumberPlate             String
+  taxiBookingDetails          String?
+  taxiImage                   String?
+  driverMobileNo              String
+  rating                      Float?
+
+
+  taxiBookingReviews          TaxiBookingReviews[] 
+  taxiBookingServices         TaxibookingServices[]
+
+  @@index([rating])
+
+
+}
+
+model TaxibookingServices{
+  id                          String         @id         @default(uuid())
+  taxiBookingId               String
+  serviceName                 String
+  startingPoint               String
+  destination                 String  
+  serviceDetails              String
+  fareAmount                  Float
+  serviceTime                 String
+
+  taxiBooking                 TaxiBooking     @relation(fields: [taxiBookingId],references: [taxiBookingId])   
+
+  @@index([fareAmount,destination,serviceTime])       
+     
+}
+model TaxiBookingReviews{ 
+  reviewId                    String           @id        @default(uuid())
+  taxiBookingId               String
+  review                      String
+  likes                       Int              @default(0)
+  disLikes                    Int              @default(0)
+  userName                    String
+
+  taxiBooking                 TaxiBooking      @relation(fields: [taxiBookingId],references: [taxiBookingId])
+}
+
+
 
 
 model Purchases{
-  purchase_id           String         @id        @default(uuid())
-  user_id               String
-  product_id            String
-  amount                Decimal
-  status                Order_Status   @default(PLACED)
-  purchaseDate          DateTime       @default(now())
+  purchase_id                  String         @id        @default(uuid())
+  user_id                      String
+  product_id                   String
+  amount                       Decimal
+  status                       Order_Status   @default(PLACED)
+  purchaseDate                 DateTime       @default(now())
 
 
-  user                  User           @relation(fields: [user_id],references: [user_id])
-  product               Products       @relation(fields: [product_id],references: [product_id])
+  user                         User           @relation(fields: [user_id],references: [user_id])
+  product                      Products       @relation(fields: [product_id],references: [product_id])
   
 
 }
 
 model Cart{
-  id                    String        @id       @default(uuid())
-  user_id               String
-  product_id            String
-  quantity              Int            @default(1)    
-  createdAt             DateTime       @default(now())
+  id                            String         @id       @default(uuid())
+  user_id                       String
+  product_id                    String
+  quantity                      Int            @default(1)    
+  createdAt                     DateTime       @default(now())
 
-  user                  User           @relation(fields: [user_id],references: [user_id])
-  product               Products      @relation(fields: [product_id],references: [product_id])
+  user                          User           @relation(fields: [user_id],references: [user_id])
+  product                       Products       @relation(fields: [product_id],references: [product_id])
 }
 
 model Orders{
-  order_id              String         @id                 @default(uuid())
-  status                Order_Status   @default(PLACED)
-  user_id               String
-  product_id            String
-  quantity              Int
-  totalPrice            Decimal
-  paymentStatus         Transaction_Status    
-  createdAt             DateTime       @default(now())  
-  deliveryDate          DateTime?
-
-  user                  User          @relation(fields: [user_id],references: [user_id])
-  product               Products      @relation(fields: [product_id],references: [product_id])
+  order_id                      String         @id                 @default(uuid())
+  status                        Order_Status   @default(PLACED)
+  user_id                       String
+  product_id                    String
+  quantity                      Int
+  totalPrice                    Decimal
+  paymentStatus                 Transaction_Status    
+  createdAt                     DateTime       @default(now())  
+  deliveryDate                  DateTime?
+        
+  user                          User           @relation(fields: [user_id],references: [user_id])
+  product                       Products       @relation(fields: [product_id],references: [product_id])
 }
 
 model Transactions{
-  transaction_id        String       @id     @default(uuid())
-  product_id            String
-  buyer_id              String
-  seller_id             String
-  amount                Decimal
-  paymentMethod         String    // like-> upi, credit card, Cash
-  status                Transaction_Status
-  transactionDate       DateTime              @default(now())
+  transaction_id                String       @id     @default(uuid())
+  product_id                    String
+  buyer_id                      String
+  seller_id                     String
+  amount                        Decimal
+  paymentMethod                 String    // like-> upi, credit card, Cash
+  status                        Transaction_Status
+  transactionDate               DateTime     @default(now())
 
 
-  buyer                 User   @relation(fields: [buyer_id], references: [user_id], name: "buyer_transaction")  
-  seller                User   @relation(fields: [seller_id], references: [user_id], name: "seller_transaction")
-  product               Products     @relation(fields: [product_id],references: [product_id])
+  buyer                         User         @relation(fields: [buyer_id], references: [user_id], name: "buyer_transaction")  
+  seller                        User         @relation(fields: [seller_id], references: [user_id], name: "seller_transaction")
+  product                       Products     @relation(fields: [product_id],references: [product_id])
 }
