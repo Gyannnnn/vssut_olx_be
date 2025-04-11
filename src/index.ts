@@ -12,6 +12,7 @@ import universityRouter from './Routes/University/university.routes';
 import userRouter from './Routes/User/user.routes';
 import adminRouter from './Routes/Admin/admin.routes';
 import superAdminRouter from './Routes/Super Admin/superadmin.routes';
+import productRouter from './Routes/Product/product.routes';
 
 
 
@@ -35,6 +36,7 @@ app.use("/api/v1/university",universityRouter);
 app.use("/api/v1/user",userRouter);
 app.use("/api/v1/admin",adminRouter);
 app.use("/api/v1/superadmin",superAdminRouter);
+app.use("/api/v1/products",productRouter);
 
 
 

@@ -99,7 +99,7 @@ const superAdminSignin = (req, res) => __awaiter(void 0, void 0, void 0, functio
             return;
         }
         else {
-            const token = jsonwebtoken_1.default.sign({ superAdminEmail }, process.env.JWT_SUPER_ADMIN_SECRET, { expiresIn: "1hr" });
+            const token = jsonwebtoken_1.default.sign({ superAdminEmail }, process.env.JWT_SUPER_ADMIN_SECRET, { expiresIn: "24hr" });
             res.status(201).json({
                 message: "Super user signed in successfully",
                 token: token

@@ -89,7 +89,7 @@ export const superAdminSignin   = async(req: Request, res: Response)=>{
             });
             return;
         }else{
-            const token  = jwt.sign({superAdminEmail},process.env.JWT_SUPER_ADMIN_SECRET as string,{expiresIn:"1hr"});
+            const token  = jwt.sign({superAdminEmail},process.env.JWT_SUPER_ADMIN_SECRET as string,{expiresIn:"24hr"});
             res.status(201).json({
                 message: "Super user signed in successfully",
                 token: token
