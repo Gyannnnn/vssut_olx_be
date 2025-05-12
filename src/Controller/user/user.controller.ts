@@ -247,3 +247,102 @@ export const deleteUser = async(req: Request, res: Response)=>{
         
     }
 }
+
+
+export const userOrders = async(req:Request,res:Response)=>{
+  const {user_id} = req.params
+  if(!user_id?.trim()){
+    res.status(400).json({
+      message: "All fields are required"
+    })
+  }
+  try {
+    const user = await prisma.user.findFirst({
+      where:{
+        user_id:user_id
+      }
+    })
+    if(!user){
+      res.status(400).json({
+        message: "No users exists try signining up"
+      });
+      return;
+    }
+    const orders = await prisma.orders.findMany({
+      where:{
+        user_id:user_id
+      }
+    });
+    if(!orders || orders.length === 0){
+      res.status(404).json({
+        message:"No orders placed by user"
+      });
+      return
+    }
+    res.status(200).json({
+      message: "orders fetched successfully",
+      orders
+    })
+  } catch (error) {
+    const err  = error as Error
+    res.status(500).json({
+      message: "Internal server error",
+      error: err.message
+    })
+    
+  }
+}
+
+export const userProfile = async(req: Request,res: Response)=>{
+  const {user_id} = req.params
+  if(!user_id?.trim()){
+    res.status(400).json({
+      message: "All fields are required"
+    })
+  }
+  try {
+    const user = await prisma.user.findFirst({
+      where:{
+        user_id
+      }
+    })
+    if(!user){
+      res.status(404).json({
+        message: "No users found try signing up"
+      });
+      return      
+    }
+    const profile = await prisma.user.findFirst({
+      where:{
+        user_id:user_id
+      },
+      include: {
+        userPurchases: true,
+        userCart: true,
+        userProducts: true,
+        userServices: true,
+        userOrders: true,
+        buyerTransactions: true,
+        sellerTransactions: true,
+        userUniversity: true,
+      }
+    })
+    if(!profile){
+      res.status(404).json({
+        message: "Nothing found" 
+      });
+      return
+    }
+    res.status(200).json({
+      message: "Profile fetched successfully",
+      profile:profile
+    })
+  } catch (error) {
+    const err = error as Error
+    res.status(500).json({
+      message: "Internal server error",
+      error: err.message
+    })
+    
+  }
+}

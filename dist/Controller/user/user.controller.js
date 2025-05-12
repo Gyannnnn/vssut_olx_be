@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteUser = exports.updateUser = exports.signIn = exports.signUp = exports.getAllUsers = void 0;
+exports.userProfile = exports.userOrders = exports.deleteUser = exports.updateUser = exports.signIn = exports.signUp = exports.getAllUsers = void 0;
 require("dotenv").config();
 const client_1 = require("@prisma/client");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
@@ -238,3 +238,101 @@ const deleteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.deleteUser = deleteUser;
+const userOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { user_id } = req.params;
+    if (!(user_id === null || user_id === void 0 ? void 0 : user_id.trim())) {
+        res.status(400).json({
+            message: "All fields are required"
+        });
+    }
+    try {
+        const user = yield prisma.user.findFirst({
+            where: {
+                user_id: user_id
+            }
+        });
+        if (!user) {
+            res.status(400).json({
+                message: "No users exists try signining up"
+            });
+            return;
+        }
+        const orders = yield prisma.orders.findMany({
+            where: {
+                user_id: user_id
+            }
+        });
+        if (!orders || orders.length === 0) {
+            res.status(404).json({
+                message: "No orders placed by user"
+            });
+            return;
+        }
+        res.status(200).json({
+            message: "orders fetched successfully",
+            orders
+        });
+    }
+    catch (error) {
+        const err = error;
+        res.status(500).json({
+            message: "Internal server error",
+            error: err.message
+        });
+    }
+});
+exports.userOrders = userOrders;
+const userProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { user_id } = req.params;
+    if (!(user_id === null || user_id === void 0 ? void 0 : user_id.trim())) {
+        res.status(400).json({
+            message: "All fields are required"
+        });
+    }
+    try {
+        const user = yield prisma.user.findFirst({
+            where: {
+                user_id
+            }
+        });
+        if (!user) {
+            res.status(404).json({
+                message: "No users found try signing up"
+            });
+            return;
+        }
+        const profile = yield prisma.user.findFirst({
+            where: {
+                user_id: user_id
+            },
+            include: {
+                userPurchases: true,
+                userCart: true,
+                userProducts: true,
+                userServices: true,
+                userOrders: true,
+                buyerTransactions: true,
+                sellerTransactions: true,
+                userUniversity: true,
+            }
+        });
+        if (!profile) {
+            res.status(404).json({
+                message: "Nothing found"
+            });
+            return;
+        }
+        res.status(200).json({
+            message: "Profile fetched successfully",
+            profile: profile
+        });
+    }
+    catch (error) {
+        const err = error;
+        res.status(500).json({
+            message: "Internal server error",
+            error: err.message
+        });
+    }
+});
+exports.userProfile = userProfile;
