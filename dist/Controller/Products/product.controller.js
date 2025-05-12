@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.approveProduct = exports.notApprovedProducts = exports.approvedProducts = exports.getProductsByCondition = exports.getProductsByCategory = exports.removeProduct = exports.addProduct = exports.getAllProducts = void 0;
 const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
+// get all products admin validation required
 const getAllProducts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const allProducts = yield prisma.products.findMany();
@@ -35,6 +36,7 @@ const getAllProducts = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.getAllProducts = getAllProducts;
+// adds a new product to the database
 const addProduct = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { user_id, university_id, title, description, price, category, condition, imageUrl, imageUrl2, imageUrl3, } = req.body;
     try {
@@ -103,9 +105,10 @@ const addProduct = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.addProduct = addProduct;
+// removes a product from the database
 const removeProduct = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const product_id = req.params;
-    if (!product_id) {
+    const { product_id } = req.params;
+    if (!(product_id === null || product_id === void 0 ? void 0 : product_id.trim())) {
         res.status(400).json({
             message: "All fields are required",
         });
@@ -123,11 +126,12 @@ const removeProduct = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             });
             return;
         }
-        const productDeleted = yield prisma.products.deleteMany({
+        const productDeleted = yield prisma.products.delete({
             where: {
                 product_id,
             },
         });
+        console.log(productDeleted);
         if (!productDeleted) {
             res.status(400).json({
                 message: "Failed to delete",
@@ -135,7 +139,7 @@ const removeProduct = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             return;
         }
         res.status(200).json({
-            message: `${productDeleted} deleted`,
+            message: `${productDeleted.title} deleted`,
         });
     }
     catch (error) {
@@ -144,18 +148,26 @@ const removeProduct = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.removeProduct = removeProduct;
+// fetch all products of a specific category
 const getProductsByCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const category = req.params;
-    if (!category) {
+    const { category } = req.params;
+    if (!(category === null || category === void 0 ? void 0 : category.trim())) {
         res.status(400).json({
             message: "category field required",
         });
         return;
     }
+    const productCategory = category.toUpperCase();
+    const validProductCategory = Object.values(client_1.$Enums.ProductCatagory);
+    if (!validProductCategory.includes(productCategory)) {
+        res.status(400).json({
+            message: "invalid category"
+        });
+    }
     try {
         const productsByCategory = yield prisma.products.findMany({
             where: {
-                category,
+                category: productCategory,
                 isApproved: true,
             },
         });
@@ -177,6 +189,7 @@ const getProductsByCategory = (req, res) => __awaiter(void 0, void 0, void 0, fu
     }
 });
 exports.getProductsByCategory = getProductsByCategory;
+// fetch all product of specific condition
 const getProductsByCondition = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { condition } = req.params;
     if (!(condition === null || condition === void 0 ? void 0 : condition.trim())) {
@@ -186,17 +199,17 @@ const getProductsByCondition = (req, res) => __awaiter(void 0, void 0, void 0, f
         return;
     }
     const productCondition = condition.toUpperCase();
-    const validProductEnumTypes = Object.values(client_1.$Enums.ProductCatagory);
+    const validProductEnumTypes = Object.values(client_1.$Enums.ProductCondition);
     if (!validProductEnumTypes.includes(productCondition)) {
         res.status(400).json({
-            message: `Invlid product condition: ${condition} , NEW || OLD`,
+            message: `Invalid product condition: ${condition} , NEW || USED`,
         });
         return;
     }
     try {
         const products = yield prisma.products.findMany({
             where: {
-                category: productCondition,
+                condition: productCondition,
                 isApproved: true,
             },
         });
@@ -219,6 +232,7 @@ const getProductsByCondition = (req, res) => __awaiter(void 0, void 0, void 0, f
     }
 });
 exports.getProductsByCondition = getProductsByCondition;
+// fetch all approved products , no admin validation, public route
 const approvedProducts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const approvedProducts = yield prisma.products.findMany({
@@ -245,6 +259,7 @@ const approvedProducts = (req, res) => __awaiter(void 0, void 0, void 0, functio
     }
 });
 exports.approvedProducts = approvedProducts;
+// fetch not approved products admin validation required
 const notApprovedProducts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const notApprovedProducts = yield prisma.products.findMany({
@@ -271,6 +286,7 @@ const notApprovedProducts = (req, res) => __awaiter(void 0, void 0, void 0, func
     }
 });
 exports.notApprovedProducts = notApprovedProducts;
+// approve a product to show in main frontend FALSE->TRUE
 const approveProduct = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { product_id } = req.params;
     if (!(product_id === null || product_id === void 0 ? void 0 : product_id.trim())) {

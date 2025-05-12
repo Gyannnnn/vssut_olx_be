@@ -12,10 +12,10 @@ import {
   approveProduct,
 } from "../../Controller/Products/product.controller";
 import { adminAuthValidation } from "../../Middlewares/AdminAuthMiddleware/admin.auth.middleware";
-productRouter.get("/all", getAllProducts);
+productRouter.get("/all",adminAuthValidation ,getAllProducts);
 
 productRouter.post("/add", addProduct);
-productRouter.delete("/remove/:product_id", removeProduct);
+productRouter.delete("/del/:product_id",adminAuthValidation, removeProduct);
 productRouter.get("/cat/:category", getProductsByCategory);
 productRouter.get("/con/:condition", getProductsByCondition);
 productRouter.get("/approved", approvedProducts);
@@ -25,7 +25,7 @@ productRouter.get(
   notApprovedProducts
 );
 productRouter.put(
-  "/product/approve/:product_id",
+  "/approve/:product_id",
   adminAuthValidation,
   approveProduct
 );

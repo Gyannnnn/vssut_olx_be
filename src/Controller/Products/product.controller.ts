@@ -2,6 +2,9 @@ import { PrismaClient, $Enums } from "@prisma/client";
 import { Request, Response } from "express";
 const prisma = new PrismaClient();
 
+
+
+// get all products admin validation required
 export const getAllProducts = async (req: Request, res: Response) => {
   try {
     const allProducts = await prisma.products.findMany();
@@ -24,6 +27,7 @@ export const getAllProducts = async (req: Request, res: Response) => {
   }
 };
 
+// adds a new product to the database
 export const addProduct = async (req: Request, res: Response) => {
   const {
     user_id,
@@ -104,9 +108,11 @@ export const addProduct = async (req: Request, res: Response) => {
   }
 };
 
+
+// removes a product from the database
 export const removeProduct = async (req: Request, res: Response) => {
-  const product_id = req.params;
-  if (!product_id) {
+  const {product_id} = req.params;
+  if (!product_id?.trim()) {
     res.status(400).json({
       message: "All fields are required",
     });
@@ -118,17 +124,20 @@ export const removeProduct = async (req: Request, res: Response) => {
         product_id: product_id,
       },
     });
+   
     if (!isProductExists) {
       res.status(400).json({
         message: "Product not found",
       });
       return;
     }
-    const productDeleted = await prisma.products.deleteMany({
+    const productDeleted = await prisma.products.delete({
       where: {
         product_id,
       },
     });
+    console.log(productDeleted)
+    
     if (!productDeleted) {
       res.status(400).json({
         message: "Failed to delete",
@@ -136,7 +145,7 @@ export const removeProduct = async (req: Request, res: Response) => {
       return;
     }
     res.status(200).json({
-      message: `${productDeleted} deleted`,
+      message: `${productDeleted.title} deleted`,
     });
   } catch (error) {
     const err = error as Error;
@@ -144,19 +153,28 @@ export const removeProduct = async (req: Request, res: Response) => {
   }
 };
 
+
+// fetch all products of a specific category
 export const getProductsByCategory = async (req: Request, res: Response) => {
-  const category = req.params;
-  if (!category) {
+  const {category} = req.params;
+  if (!category?.trim()) {
     res.status(400).json({
       message: "category field required",
     });
     return;
   }
+  const productCategory = category.toUpperCase() as $Enums.ProductCatagory
+  const validProductCategory = Object.values($Enums.ProductCatagory)
+  if(!validProductCategory.includes(productCategory)){
+    res.status(400).json({
+      message: "invalid category"
+    })
+  }
 
   try {
     const productsByCategory = await prisma.products.findMany({
       where: {
-        category,
+        category:productCategory,
         isApproved: true,
       },
     });
@@ -177,6 +195,8 @@ export const getProductsByCategory = async (req: Request, res: Response) => {
   }
 };
 
+
+// fetch all product of specific condition
 export const getProductsByCondition = async (req: Request, res: Response) => {
   const { condition } = req.params;
 
@@ -186,11 +206,11 @@ export const getProductsByCondition = async (req: Request, res: Response) => {
     });
     return;
   }
-  const productCondition = condition.toUpperCase() as $Enums.ProductCatagory;
-  const validProductEnumTypes = Object.values($Enums.ProductCatagory);
+  const productCondition = condition.toUpperCase() as $Enums.ProductCondition;
+  const validProductEnumTypes = Object.values($Enums.ProductCondition);
   if (!validProductEnumTypes.includes(productCondition)) {
     res.status(400).json({
-      message: `Invlid product condition: ${condition} , NEW || OLD`,
+      message: `Invalid product condition: ${condition} , NEW || USED`,
     });
     return;
   }
@@ -198,7 +218,7 @@ export const getProductsByCondition = async (req: Request, res: Response) => {
   try {
     const products = await prisma.products.findMany({
       where: {
-        category: productCondition,
+        condition: productCondition,
         isApproved: true,
       },
     });
@@ -220,6 +240,8 @@ export const getProductsByCondition = async (req: Request, res: Response) => {
   }
 };
 
+
+// fetch all approved products , no admin validation, public route
 export const approvedProducts = async (req: Request, res: Response) => {
   try {
     const approvedProducts = await prisma.products.findMany({
@@ -245,6 +267,8 @@ export const approvedProducts = async (req: Request, res: Response) => {
   }
 };
 
+// fetch not approved products admin validation required
+
 export const notApprovedProducts = async (req: Request, res: Response) => {
   try {
     const notApprovedProducts = await prisma.products.findMany({
@@ -269,6 +293,8 @@ export const notApprovedProducts = async (req: Request, res: Response) => {
     });
   }
 };
+
+// approve a product to show in main frontend FALSE->TRUE
 
 export const approveProduct = async (req: Request, res: Response) => {
   const { product_id } = req.params;
