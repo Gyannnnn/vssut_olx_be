@@ -248,6 +248,7 @@ export const deleteUser = async(req: Request, res: Response)=>{
     }
 }
 
+// fetch user orders , user authentication required 🖣
 
 export const userOrders = async(req:Request,res:Response)=>{
   const {user_id} = req.params
@@ -292,6 +293,8 @@ export const userOrders = async(req:Request,res:Response)=>{
     
   }
 }
+
+// fetch user profile, user authentication required 🖣
 
 export const userProfile = async(req: Request,res: Response)=>{
   const {user_id} = req.params
