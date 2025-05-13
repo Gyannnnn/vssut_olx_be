@@ -238,6 +238,7 @@ const deleteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.deleteUser = deleteUser;
+// fetch user orders , user authentication required 🖣
 const userOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { user_id } = req.params;
     if (!(user_id === null || user_id === void 0 ? void 0 : user_id.trim())) {
@@ -282,6 +283,7 @@ const userOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.userOrders = userOrders;
+// fetch user profile, user authentication required 🖣
 const userProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { user_id } = req.params;
     if (!(user_id === null || user_id === void 0 ? void 0 : user_id.trim())) {

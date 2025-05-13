@@ -128,6 +128,7 @@ model Products{
   rating                   Float          @default(0)
   likes                    Int            @default(0)
   updatedAt                DateTime       @default(now())
+  isAvailable              Boolean        @default(true)
 
   user                     User           @relation(fields: [user_id],references: [user_id]) 
   university               University     @relation(fields: [university_id],references: [university_id])
@@ -160,6 +161,7 @@ model Services{
   price                    Decimal
   serviceType              ServiceType        //"asignment","project help", "bike rent" etc ....
   createdAt                DateTime       @default(now())  
+  
              
 
   user                     User           @relation(fields: [user_id],references: [user_id])
@@ -180,7 +182,7 @@ model BikeRental{
   bikeRentalDescriptionn   String
   bikeRentalAddress        String
   rentPerHour              String
-  available                Boolean      @default(true)
+  isAvailable                Boolean      @default(true)
   isApproved               Boolean      @default(false)
   createdAt                DateTime     @default(now())
   rating                   Float?       @default(0)
@@ -191,7 +193,7 @@ model BikeRental{
   products                 BikeRetalProducts[]
   reviews                  BikeRentalReviews[]
 
-  @@index([isApproved,rentPerHour,available,rating])
+  @@index([isApproved,rentPerHour,isAvailable,rating])
 }
 model BikeRetalProducts{
   id                       String       @id       @default(uuid()) 

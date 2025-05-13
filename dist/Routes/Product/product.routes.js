@@ -4,6 +4,7 @@ const express_1 = require("express");
 const productRouter = (0, express_1.Router)();
 const product_controller_1 = require("../../Controller/Products/product.controller");
 const admin_auth_middleware_1 = require("../../Middlewares/AdminAuthMiddleware/admin.auth.middleware");
+const user_auth_middleware_1 = require("../../Middlewares/UserAuthMiddleware/user.auth.middleware");
 productRouter.get("/all", admin_auth_middleware_1.adminAuthValidation, product_controller_1.getAllProducts);
 productRouter.post("/add", product_controller_1.addProduct);
 productRouter.delete("/del/:product_id", admin_auth_middleware_1.adminAuthValidation, product_controller_1.removeProduct);
@@ -12,4 +13,10 @@ productRouter.get("/con/:condition", product_controller_1.getProductsByCondition
 productRouter.get("/approved", product_controller_1.approvedProducts);
 productRouter.get("/products/notapproved", admin_auth_middleware_1.adminAuthValidation, product_controller_1.notApprovedProducts);
 productRouter.put("/approve/:product_id", admin_auth_middleware_1.adminAuthValidation, product_controller_1.approveProduct);
+productRouter.get("/:product_id", product_controller_1.getProductById);
+productRouter.get("/university/:university_id", product_controller_1.getProductsByUniversity);
+productRouter.get("/user/:user_id", admin_auth_middleware_1.adminAuthValidation, product_controller_1.getProductsByUser);
+productRouter.get("/available/:university_id", product_controller_1.getAvailableProducts);
+productRouter.put("/oos/:product_id", user_auth_middleware_1.userAuthValidation, product_controller_1.outOfStock);
+productRouter.put("/is/:product_id", user_auth_middleware_1.userAuthValidation, product_controller_1.inStock);
 exports.default = productRouter;

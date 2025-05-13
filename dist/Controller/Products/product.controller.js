@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.approveProduct = exports.notApprovedProducts = exports.approvedProducts = exports.getProductsByCondition = exports.getProductsByCategory = exports.removeProduct = exports.addProduct = exports.getAllProducts = void 0;
+exports.inStock = exports.outOfStock = exports.getAvailableProducts = exports.getProductsByUser = exports.getProductsByUniversity = exports.getProductById = exports.approveProduct = exports.notApprovedProducts = exports.approvedProducts = exports.getProductsByCondition = exports.getProductsByCategory = exports.removeProduct = exports.addProduct = exports.getAllProducts = void 0;
 const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
 // get all products admin validation required
@@ -161,7 +161,7 @@ const getProductsByCategory = (req, res) => __awaiter(void 0, void 0, void 0, fu
     const validProductCategory = Object.values(client_1.$Enums.ProductCatagory);
     if (!validProductCategory.includes(productCategory)) {
         res.status(400).json({
-            message: "invalid category"
+            message: "invalid category",
         });
     }
     try {
@@ -317,3 +317,260 @@ const approveProduct = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.approveProduct = approveProduct;
+// fetch a product by product id
+const getProductById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { product_id } = req.params;
+    if (!(product_id === null || product_id === void 0 ? void 0 : product_id.trim())) {
+        res.status(400).json({
+            message: "Product id is required",
+        });
+        return;
+    }
+    try {
+        const product = yield prisma.products.findFirst({
+            where: {
+                product_id,
+            },
+            include: {
+                reviews: true,
+                university: true,
+            },
+        });
+        if (!product) {
+            res.status(404).json({
+                message: "No product found",
+            });
+            return;
+        }
+        res.status(200).json({
+            message: "Product fetched",
+            product,
+        });
+    }
+    catch (error) {
+        const err = error;
+        res.status(500).json({
+            message: "Internal server error",
+            error: err.message,
+        });
+    }
+});
+exports.getProductById = getProductById;
+// fetch products by university/university id
+const getProductsByUniversity = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { university_id } = req.params;
+    if (!(university_id === null || university_id === void 0 ? void 0 : university_id.trim())) {
+        res.status(400).json({
+            message: "university_id required",
+        });
+        return;
+    }
+    try {
+        const university = yield prisma.university.findFirst({
+            where: {
+                university_id,
+            },
+            include: {
+                products: true,
+            },
+        });
+        if (!university) {
+            res.status(404).json({
+                message: "University not exist",
+            });
+            return;
+        }
+        res.status(200).json({
+            message: `product fetched from ${university.name}`,
+            products: university.products,
+        });
+    }
+    catch (error) {
+        const err = error;
+        res.status(500).json({
+            message: "Internal server error",
+            error: err.message,
+        });
+    }
+});
+exports.getProductsByUniversity = getProductsByUniversity;
+// fetch products by user/user_id , admin auth required
+const getProductsByUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { user_id } = req.params;
+    if (!(user_id === null || user_id === void 0 ? void 0 : user_id.trim())) {
+        res.status(400).json({
+            message: "user id is required"
+        });
+        return;
+    }
+    try {
+        const user = yield prisma.user.findFirst({
+            where: {
+                user_id
+            },
+            include: {
+                userProducts: true
+            }
+        });
+        if (!user) {
+            res.status(404).json({
+                messge: "no user found"
+            });
+            return;
+        }
+        res.status(200).json({
+            message: `product of ${user.userName} fetched successfullly`,
+            userProducts: user.userProducts
+        });
+    }
+    catch (error) {
+        const err = error;
+        res.status(500).json({
+            message: "Internal server error",
+            error: err.message
+        });
+    }
+});
+exports.getProductsByUser = getProductsByUser;
+// fetch available/ready to deliver  products 
+const getAvailableProducts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { university_id } = req.params;
+    if (!(university_id === null || university_id === void 0 ? void 0 : university_id.trim())) {
+        res.status(400).json({
+            message: "University id required"
+        });
+        return;
+    }
+    try {
+        const university = yield prisma.university.findFirst({
+            where: {
+                university_id
+            }
+        });
+        if (!university) {
+            res.status(404).json({
+                message: "No university found"
+            });
+            return;
+        }
+        const availableProducts = yield prisma.products.findMany({
+            where: {
+                isAvailable: true,
+                university_id
+            }
+        });
+        if (!availableProducts || availableProducts.length === 0) {
+            res.status(404).json({
+                message: "No available products"
+            });
+            return;
+        }
+        res.status(200).json({
+            message: `Available products from ${university.name} fetched`,
+            availableProducts
+        });
+    }
+    catch (error) {
+        const err = error;
+        res.status(500).json({
+            message: "Internal server error",
+            error: err.message
+        });
+    }
+});
+exports.getAvailableProducts = getAvailableProducts;
+// make product outofstock
+const outOfStock = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { product_id } = req.params;
+    if (!(product_id === null || product_id === void 0 ? void 0 : product_id.trim())) {
+        res.status(400).json({
+            message: "Product id is required"
+        });
+        return;
+    }
+    try {
+        const product = yield prisma.products.findFirst({
+            where: {
+                product_id
+            }
+        });
+        if (!product) {
+            res.status(404).json({
+                message: "No product found"
+            });
+        }
+        if (!(product === null || product === void 0 ? void 0 : product.isAvailable)) {
+            res.status(409).json({
+                message: `Product ${product === null || product === void 0 ? void 0 : product.title} is already out of stock`
+            });
+            return;
+        }
+        yield prisma.products.update({
+            where: {
+                product_id
+            },
+            data: {
+                isAvailable: false
+            }
+        });
+        res.status(200).json({
+            message: `Product ${product === null || product === void 0 ? void 0 : product.title} is now out of stock`
+        });
+    }
+    catch (error) {
+        const err = error;
+        res.status(500).json({
+            message: "Internal server error",
+            error: err.message
+        });
+    }
+});
+exports.outOfStock = outOfStock;
+// make product in stock
+const inStock = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { product_id } = req.params;
+    if (!(product_id === null || product_id === void 0 ? void 0 : product_id.trim())) {
+        res.status(400).json({
+            message: "Product id is required"
+        });
+        return;
+    }
+    try {
+        const product = yield prisma.products.findFirst({
+            where: {
+                product_id
+            }
+        });
+        if (!product) {
+            res.status(404).json({
+                message: "Product does not exist"
+            });
+            return;
+        }
+        if (product === null || product === void 0 ? void 0 : product.isAvailable) {
+            res.status(409).json({
+                message: `Product ${product.title} already available`
+            });
+            return;
+        }
+        yield prisma.products.update({
+            where: {
+                product_id
+            },
+            data: {
+                isAvailable: true
+            }
+        });
+        res.status(200).json({
+            message: `Product ${product === null || product === void 0 ? void 0 : product.title} is now available`
+        });
+    }
+    catch (error) {
+        const err = error;
+        res.status(500).json({
+            message: "Internal server error",
+            error: err.message
+        });
+    }
+});
+exports.inStock = inStock;
