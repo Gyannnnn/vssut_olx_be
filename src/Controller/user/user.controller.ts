@@ -76,7 +76,7 @@ export const signUp = async (req: Request, res: Response) => {
       },
     });
     const token = jwt.sign(
-      { userMobileNo },
+      { userMobileNo,role:newUser.role },      
       process.env.JWT_SECRET || "ihqvu9eirhgiuvhwou8rehg89uh3yrwhquighreuigh",
       { expiresIn: "24h" }
     );
@@ -132,7 +132,7 @@ export const signIn = async (req: Request, res: Response) => {
       return;
     }
     const token = jwt.sign(
-      { userMobileNo },
+      { userMobileNo , role:isExist.role},
       process.env.JWT_SECRET || "ihqvu9eirhgiuvhwou8rehg89uh3yrwhquighreuigh",
       { expiresIn: "24h" }
     );

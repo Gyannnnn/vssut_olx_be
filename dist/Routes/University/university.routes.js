@@ -10,7 +10,7 @@ const university_controller_2 = require("../../Controller/University/university.
 const university_controller_3 = require("../../Controller/University/university.controller");
 // Routes 🖣
 universityRouter.get("/", university_controller_1.getUniversity);
-universityRouter.post("/add", superAdmin_auth_middleware_1.superAdminAuthValidation, university_controller_2.addNewUniversity);
+universityRouter.post("/add", university_controller_2.addNewUniversity);
 universityRouter.post("/del", superAdmin_auth_middleware_1.superAdminAuthValidation, university_controller_3.deleteUniversity);
 // Export 🖣
 exports.default = universityRouter;

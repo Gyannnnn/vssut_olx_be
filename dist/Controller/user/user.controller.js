@@ -81,7 +81,7 @@ const signUp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 userUniversityName: userUniversity === null || userUniversity === void 0 ? void 0 : userUniversity.name
             },
         });
-        const token = jsonwebtoken_1.default.sign({ userMobileNo }, process.env.JWT_SECRET || "ihqvu9eirhgiuvhwou8rehg89uh3yrwhquighreuigh", { expiresIn: "24h" });
+        const token = jsonwebtoken_1.default.sign({ userMobileNo, role: newUser.role }, process.env.JWT_SECRET || "ihqvu9eirhgiuvhwou8rehg89uh3yrwhquighreuigh", { expiresIn: "24h" });
         if (!newUser) {
             res.status(400).json({
                 message: "Failed to create user",
@@ -130,7 +130,7 @@ const signIn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             });
             return;
         }
-        const token = jsonwebtoken_1.default.sign({ userMobileNo }, process.env.JWT_SECRET || "ihqvu9eirhgiuvhwou8rehg89uh3yrwhquighreuigh", { expiresIn: "24h" });
+        const token = jsonwebtoken_1.default.sign({ userMobileNo, role: isExist.role }, process.env.JWT_SECRET || "ihqvu9eirhgiuvhwou8rehg89uh3yrwhquighreuigh", { expiresIn: "24h" });
         res.status(201).json({
             message: "User signed in",
             token: token,

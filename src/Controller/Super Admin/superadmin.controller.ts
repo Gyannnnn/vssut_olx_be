@@ -1,106 +1,103 @@
-require('dotenv').config()
+require("dotenv").config();
 import { PrismaClient } from "@prisma/client";
-import jwt from "jsonwebtoken"
-import bcrypt from 'bcryptjs'
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
 import { Request, Response } from "express";
-const prisma  = new PrismaClient();
+const prisma = new PrismaClient();
 
 // creates a superadmin  🖣
 
-export const createSuperAdmin = async(req:Request,res: Response)=>{
-    const{superAdminName,superAdminEmail,superAdminPassword,superAdminAvatar,superAdminMobile} = req.body
-    if(!superAdminName?.trim()||!superAdminEmail?.trim()|| !superAdminPassword?.trim()|| !superAdminAvatar?.trim()||!superAdminMobile?.trim()){
-        res.status(400).json({
-            message: "All fields are required"
-        });
-        return;
-    }
-    try {
-        const isExist = await prisma.superAdmin.findFirst({
-            where:{
-                superAdminEmail,
-                
-            }
-        })
-        if(isExist){
-            res.status(400).json({
-                message:"Super admin already exist"
-            });
-            return
-        }
-        const hashedPassword = await bcrypt.hash(superAdminPassword,10)
-        const newSuperAdmin = await prisma.superAdmin.create({
-            data:{
-                superAdminName,
-                superAdminEmail,
-                superAdminPassword:hashedPassword,
-                superAdminAvatar,
-                superAdminMobileNo:superAdminMobile
-            }
-        })
-        if(!newSuperAdmin){
-            res.status(400).json({
-                message:"Failed to create super admin"
-            });
-            return;
-        }else{
-            res.status(201).json({
-                message: "Super Admin created successfully",
-                newSuperAdmin
-            });
-            
-        }
+export const createSuperAdmin = async (req: Request, res: Response) => {
+  const { user_id } = req.params;
+  if (!user_id?.trim()) {
+    res.status(400).json({
+      message: "all fields are required",
+    });
+    return;
+  }
 
-    } catch (error) {
-        const err = error as Error
-        res.status(400).json({
-            message:err.message
-        })
-        
+  try {
+    const user = await prisma.user.findFirst({
+      where: {
+        user_id,
+      },
+    });
+    if (!user) {
+      res.status(404).json({
+        message: "No user found !",
+      });
+      return;
     }
-
-}
+    if (user.role === "SUPERADMIN") {
+      res.status(409).json({
+        message: "Already super admin",
+      });
+      return;
+    }
+    await prisma.user.update({
+      where: {
+        user_id,
+      },
+      data: {
+        role: "SUPERADMIN",
+      },
+    });
+    res.status(200).json({
+      message: `${user.userName} is appointed as Super admin`,
+    });
+  } catch (error) {
+    const err = error as Error;
+    res.status(500).json({
+      message: "Internal server error",
+      error: err.message,
+    });
+  }
+};
 
 // 🖣 Super admin signin
-export const superAdminSignin   = async(req: Request, res: Response)=>{
-    const {superAdminEmail,superAdminPassword} = req.body;
-    if(!superAdminEmail?.trim()|| !superAdminPassword?.trim()){
-        res.status(400).json({
-            message: "All fields required"
-        });
-        return
+export const superAdminSignin = async (req: Request, res: Response) => {
+  const { userMobileNo, password } = req.body;
+  if (!userMobileNo?.trim() || !password?.trim()) {
+    res.status(400).json({
+      message: "All fields are required",
+    });
+    return;
+  }
+  try {
+    const isExist = await prisma.user.findFirst({
+      where: {
+        userMobileNo,
+      },
+    });
+    if (!isExist) {
+      res.status(400).json({
+        message: "User doesnot exists Try signing up",
+      });
+      return;
     }
-    try {
-        const isExist = await prisma.superAdmin.findFirst({
-            where:{
-                superAdminEmail
-            }
-        });
-        if(!isExist){
-            res.status(400).json({
-                message: "Super admin does not exist"
-            });
-            return;
-        }
-        const verfiedPassword = bcrypt.compare(superAdminPassword,isExist.superAdminPassword)
-        if(!verfiedPassword){
-            res.status(400).json({
-                message: "Incorrect password"
-            });
-            return;
-        }else{
-            const token  = jwt.sign({superAdminEmail},process.env.JWT_SUPER_ADMIN_SECRET as string,{expiresIn:"24hr"});
-            res.status(201).json({
-                message: "Super user signed in successfully",
-                token: token
-            })
-        }
-    } catch (error) {
-        const err = error as Error
-        res.status(400).json({
-            errorMessage:err.message
-        })
-        
+    const isPasswordValid = await bcrypt.compare(
+      password,
+      isExist.hashedPassword
+    );
+    if (!isPasswordValid) {
+      res.status(400).json({
+        message: "Incorrect password",
+      });
+      return;
     }
-
-}
+    const token = jwt.sign(
+      { userMobileNo, role: isExist.role },
+      process.env.JWT_SECRET || "ihqvu9eirhgiuvhwou8rehg89uh3yrwhquighreuigh",
+      { expiresIn: "24h" }
+    );
+    res.status(201).json({
+      message: "User signed in",
+      token: token,
+    });
+  } catch (error) {
+    const err = error as Error;
+    res.status(400).json({
+      message: err.message,
+    });
+  }
+};

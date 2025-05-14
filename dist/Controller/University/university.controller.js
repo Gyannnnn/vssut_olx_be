@@ -20,7 +20,7 @@ const getUniversity = (req, res) => {
 exports.getUniversity = getUniversity;
 // Creates A New University 🖣
 const addNewUniversity = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { name, address, zipcode, latitude, longitude, category, description, universityLogo, userCount, admin_id } = req.body;
+    const { name, address, zipcode, latitude, longitude, category, description, universityLogo, userCount, } = req.body;
     try {
         if (!name ||
             name.trim() === "" ||
@@ -36,7 +36,7 @@ const addNewUniversity = (req, res) => __awaiter(void 0, void 0, void 0, functio
             !universityLogo ||
             universityLogo.trim() === "" ||
             !userCount ||
-            userCount === null || !(admin_id === null || admin_id === void 0 ? void 0 : admin_id.trim())) {
+            userCount === null) {
             res.status(400).json({
                 message: "All fields are required!",
             });
@@ -71,11 +71,6 @@ const addNewUniversity = (req, res) => __awaiter(void 0, void 0, void 0, functio
                 description,
                 universityLogo,
                 userCount,
-                admin: {
-                    connect: [
-                        { admin_id: admin_id },
-                    ]
-                }
             },
         });
         if (!newUniversity) {

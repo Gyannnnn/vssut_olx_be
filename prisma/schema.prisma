@@ -17,8 +17,11 @@ enum Transaction_Status{
   NOT_PAID
 }
 enum Role{
+  STUDENT
+  STUDENT_SELLER
   SELLER
-  BUYER
+  ADMIN
+  SUPERADMIN
 }
 
 enum ServiceType{
@@ -61,7 +64,7 @@ model University{
   services              Services[]
   products              Products[]
   users                 User[]
-  admin                 Admin[]       @relation("admin")
+  
   
   
 }
@@ -76,7 +79,7 @@ model User{
   userMobileNo          String         @unique
   hashedPassword        String   
   userAvtar             String?
-  role                  Role           @default(BUYER)    
+  role                  Role           @default(STUDENT)    
   isVerified            Boolean        @default(false)
   userCreatedAt         DateTime       @default(now())
 
@@ -91,26 +94,7 @@ model User{
   
 
 }
-model Admin{
-  admin_id               String         @id           @default(uuid())
-  adminName              String  
-  adminEmail             String         @unique
-  adminMobileNo          String         @unique
-  adminAddress           String
-  adminPassword          String
-  adminAvatar            String?
 
-
-  AllotedUniversities  University[] @relation("admin")     
-}
-model SuperAdmin{
-  superAdmin_id          String         @id          @default(uuid())
-  superAdminName         String         
-  superAdminEmail        String         @unique
-  superAdminPassword     String  
-  superAdminMobileNo     String         @unique       
-  superAdminAvatar       String
-}
 model Products{
   product_id               String         @id          @default(uuid())    
   user_id                  String       

@@ -12,10 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.superAdminAuthValidation = void 0;
+exports.adminSuperAdminAuthValidation = void 0;
 require('dotenv').config();
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const superAdminAuthValidation = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const adminSuperAdminAuthValidation = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
         res.status(401).json({
@@ -27,12 +27,12 @@ const superAdminAuthValidation = (req, res, next) => __awaiter(void 0, void 0, v
     try {
         const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
         const role = decoded.role;
-        if (role === "SUPERADMIN") {
+        if (role === "ADMIN" || role === "SUPERADMIN") {
             next();
         }
         else {
             res.status(403).json({
-                message: "Unauthorised access"
+                message: "Access denied"
             });
             return;
         }
@@ -42,4 +42,4 @@ const superAdminAuthValidation = (req, res, next) => __awaiter(void 0, void 0, v
         return;
     }
 });
-exports.superAdminAuthValidation = superAdminAuthValidation;
+exports.adminSuperAdminAuthValidation = adminSuperAdminAuthValidation;

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteAdmin = exports.adminSignin = exports.createAdmin = exports.getAllAdmins = void 0;
+exports.adminSignIn = exports.removeAdmin = exports.createAdmin = exports.getAllAdmins = void 0;
 require('dotenv').config();
 const client_1 = require("@prisma/client");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
@@ -21,10 +21,14 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 // Fetches all admins existed on data base 🖣
 const getAllAdmins = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const allAdmins = yield prisma.admin.findMany();
-        if (!allAdmins) {
+        const allAdmins = yield prisma.user.findMany({
+            where: {
+                role: "ADMIN"
+            }
+        });
+        if (!allAdmins || allAdmins.length === 0) {
             res.status(400).json({
-                message: "Failed to Find Admins try again"
+                message: "No admins found"
             });
             return;
         }
@@ -44,145 +48,134 @@ const getAllAdmins = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 exports.getAllAdmins = getAllAdmins;
 // creates a new admin 🖣
 const createAdmin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { adminName, adminEmail, adminMobileNo, adminAddress, adminPassword } = req.body;
-    if (!(adminName === null || adminName === void 0 ? void 0 : adminName.trim()) ||
-        !(adminEmail === null || adminEmail === void 0 ? void 0 : adminEmail.trim()) ||
-        !(adminMobileNo === null || adminMobileNo === void 0 ? void 0 : adminMobileNo.trim()) ||
-        !(adminAddress === null || adminAddress === void 0 ? void 0 : adminAddress.trim()) ||
-        !(adminPassword === null || adminPassword === void 0 ? void 0 : adminPassword.trim())) {
+    const { user_id } = req.params;
+    if (!(user_id === null || user_id === void 0 ? void 0 : user_id.trim())) {
         res.status(400).json({
-            message: "All fields are required !",
+            message: "User id required"
         });
-        return;
     }
     try {
-        const isExist = yield prisma.admin.findFirst({
+        const student = yield prisma.user.findFirst({
             where: {
-                adminEmail,
-            },
+                user_id
+            }
         });
-        if (isExist) {
-            res.json({
-                message: "Admin already exist try signing in",
+        if (!student) {
+            res.status(404).json({
+                message: "No user found !"
             });
             return;
         }
-        const hashedPassword = yield bcryptjs_1.default.hash(adminPassword, 10);
-        const newAdmin = yield prisma.admin.create({
+        if (student.role === "ADMIN") {
+            res.status(409).json({
+                message: `${student.userName} is already an Admin`
+            });
+            return;
+        }
+        yield prisma.user.update({
+            where: {
+                user_id
+            },
             data: {
-                adminPassword: hashedPassword,
-                adminEmail,
-                adminMobileNo,
-                adminAddress,
-                adminName,
-            },
+                role: "ADMIN"
+            }
         });
-        if (!newAdmin) {
-            res.status(400).json({
-                message: "Failed to create admin",
-            });
-            return;
-        }
-        res.status(201).json({
-            message: "Successfully admin created",
-            "New Admin": newAdmin,
+        res.status(200).json({
+            message: `${student.userName} appointed as admin`
         });
     }
     catch (error) {
         const err = error;
-        res.status(400).json({
-            message: "Failed to create admin",
-            "Error Message": err.message,
+        res.status(500).json({
+            message: "Internal server error",
+            error: err.message
         });
     }
 });
 exports.createAdmin = createAdmin;
-// Admin sign in 🖣
-const adminSignin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { adminEmail, adminPassword } = req.body;
-    if (!(adminEmail === null || adminEmail === void 0 ? void 0 : adminEmail.trim()) || !(adminPassword === null || adminPassword === void 0 ? void 0 : adminPassword.trim())) {
-        res.status(400).json({
-            message: "All fields are required !",
-        });
-        return;
-    }
-    try {
-        const isAdminExist = yield prisma.admin.findFirst({
-            where: {
-                adminEmail,
-            },
-        });
-        if (!isAdminExist) {
-            res.status(400).json({
-                message: "Admin does not exists !",
-            });
-            return;
-        }
-        const comparedPassword = bcryptjs_1.default.compare(adminPassword, isAdminExist.adminPassword);
-        if (!comparedPassword) {
-            res.status(400).json({
-                message: "Incorrect Password ",
-            });
-            return;
-        }
-        const adminToken = jsonwebtoken_1.default.sign({ adminEmail }, process.env.JWT_ADMIN_SECRET, { expiresIn: "1hr" });
-        res.status(201).json({
-            message: "User Signed in successfully",
-            "Admin Token": adminToken,
-        });
-    }
-    catch (error) {
-        const err = error;
-        res.status(400).json({
-            message: "Something Went wrong",
-            "Error Message": err.message,
-        });
-    }
-});
-exports.adminSignin = adminSignin;
 // Deleted an admin when admin_id is given on the parameter  🖣
-const deleteAdmin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { admin_id } = req.params;
-    if (!(admin_id === null || admin_id === void 0 ? void 0 : admin_id.trim())) {
+const removeAdmin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { user_id } = req.params;
+    if (!(user_id === null || user_id === void 0 ? void 0 : user_id.trim())) {
         res.status(400).json({
             message: "All fields are required"
         });
         return;
     }
     try {
-        const isExist = yield prisma.admin.findFirst({
+        const admin = yield prisma.user.findFirst({
             where: {
-                admin_id
+                user_id,
+                role: "ADMIN"
             }
         });
-        if (!isExist) {
-            res.status(400).json({
-                message: "Admin does not exist"
+        if (!admin) {
+            res.status(404).json({
+                message: "No admin found !"
             });
             return;
         }
-        const deletedAdmin = yield prisma.admin.delete({
+        yield prisma.user.update({
             where: {
-                admin_id
+                user_id,
+                role: "ADMIN"
+            },
+            data: {
+                role: "STUDENT"
             }
         });
-        if (!exports.deleteAdmin) {
-            res.status(400).json({
-                message: " Failed to delete Admin "
-            });
-            return;
-        }
-        res.status(201).json({
-            message: "Admin deleted Successfully",
-            "Delted Admin": deletedAdmin
+        res.status(200).json({
+            messsage: `${admin.userName} terminated from admin position`
         });
     }
     catch (error) {
         const err = error;
-        res.status(400).json({
-            message: "Failed To delete the message",
-            "Error Message": err.message
+        res.status(500).json({
+            message: "Internal server error",
+            error: err.message
         });
     }
 });
-exports.deleteAdmin = deleteAdmin;
+exports.removeAdmin = removeAdmin;
+const adminSignIn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userMobileNo, password } = req.body;
+    if (!(userMobileNo === null || userMobileNo === void 0 ? void 0 : userMobileNo.trim()) || !(password === null || password === void 0 ? void 0 : password.trim())) {
+        res.status(400).json({
+            message: "All fields are required",
+        });
+        return;
+    }
+    try {
+        const isExist = yield prisma.user.findFirst({
+            where: {
+                userMobileNo,
+            },
+        });
+        if (!isExist) {
+            res.status(400).json({
+                message: "User doesnot exists Try signing up",
+            });
+            return;
+        }
+        const isPasswordValid = yield bcryptjs_1.default.compare(password, isExist.hashedPassword);
+        if (!isPasswordValid) {
+            res.status(400).json({
+                message: "Incorrect password",
+            });
+            return;
+        }
+        const token = jsonwebtoken_1.default.sign({ userMobileNo, role: isExist.role }, process.env.JWT_SECRET || "ihqvu9eirhgiuvhwou8rehg89uh3yrwhquighreuigh", { expiresIn: "24h" });
+        res.status(201).json({
+            message: `${isExist.role} signed in`,
+            token: token,
+        });
+        console.log(`Amin ${isExist.userName} signed in`);
+    }
+    catch (error) {
+        const err = error;
+        res.status(400).json({
+            message: err.message,
+        });
+    }
+});
+exports.adminSignIn = adminSignIn;

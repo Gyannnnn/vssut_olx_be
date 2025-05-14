@@ -6,7 +6,9 @@ import { superAdminSignin } from "../../Controller/Super Admin/superadmin.contro
 
 // super admin routes 🖣
 
-superAdminRouter.post("/create",createSuperAdmin);
+import { superAdminAuthValidation } from "../../Middlewares/SuperAdminAuthMIddleware/superAdmin.auth.middleware";
+
+superAdminRouter.put("/create/:user_id",superAdminAuthValidation,createSuperAdmin);
 superAdminRouter.post("/signin",superAdminSignin)
 
 

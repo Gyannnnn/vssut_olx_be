@@ -9,10 +9,14 @@ import jwt from "jsonwebtoken";
 // Fetches all admins existed on data base 🖣
 export const getAllAdmins = async(req: Request, res: Response)=>{
   try {
-    const allAdmins = await prisma.admin.findMany()
-    if(!allAdmins){
+    const allAdmins = await prisma.user.findMany({
+        where:{
+            role:"ADMIN"
+        }
+    })
+    if(!allAdmins || allAdmins.length === 0){
       res.status(400).json({
-        message: "Failed to Find Admins try again"
+        message: "No admins found"
       });
       return;
     }
@@ -33,155 +37,146 @@ export const getAllAdmins = async(req: Request, res: Response)=>{
 
 // creates a new admin 🖣
 export const createAdmin = async (req: Request, res: Response) => {
-  const { adminName, adminEmail, adminMobileNo, adminAddress, adminPassword } =
-    req.body;
-
-  if (
-    !adminName?.trim() ||
-    !adminEmail?.trim() ||
-    !adminMobileNo?.trim() ||
-    !adminAddress?.trim() ||
-    !adminPassword?.trim()
-  ) {
-    res.status(400).json({
-      message: "All fields are required !",
-    });
-    return;
-  }
-  try {
-    const isExist = await prisma.admin.findFirst({
-      where: {
-        adminEmail,
-      },
-    });
-    if (isExist) {
-      res.json({
-        message: "Admin already exist try signing in",
-      });
-      return;
+  const {user_id} = req.params
+    if(!user_id?.trim()){
+        res.status(400).json({
+            message: "User id required"
+        })
     }
-    const hashedPassword = await bcrypt.hash(adminPassword, 10);
-    const newAdmin = await prisma.admin.create({
-      data: {
-        adminPassword: hashedPassword,
-        adminEmail,
-        adminMobileNo,
-        adminAddress,
-        adminName,
-      },
-    });
-    if (!newAdmin) {
-      res.status(400).json({
-        message: "Failed to create admin",
-      });
-      return;
+    try {
+        const student = await prisma.user.findFirst({
+            where:{
+                user_id
+            }
+        })
+        if(!student){
+            res.status(404).json({
+                message: "No user found !"
+            });
+            return
+        }
+        if(student.role === "ADMIN"){
+            res.status(409).json({
+                message: `${student.userName} is already an Admin`
+            });
+            return
+        }
+        await prisma.user.update({
+            where:{
+                user_id
+            },
+            data:{
+                role:"ADMIN"
+            }
+        })
+        res.status(200).json({
+            message: `${student.userName} appointed as admin`
+        })
+    } catch (error) {
+        const err = error as Error
+        res.status(500).json({
+            message: "Internal server error",
+            error: err.message
+        });
     }
-    res.status(201).json({
-      message: "Successfully admin created",
-      "New Admin": newAdmin,
-    });
-  } catch (error) {
-    const err = error as Error;
-    res.status(400).json({
-      message: "Failed to create admin",
-      "Error Message": err.message,
-    });
-  }
 };
 
-// Admin sign in 🖣
 
-export const adminSignin = async (req: Request, res: Response) => {
-  const { adminEmail, adminPassword } = req.body;
-  if (!adminEmail?.trim() || !adminPassword?.trim()) {
-    res.status(400).json({
-      message: "All fields are required !",
-    });
-    return;
-  }
-  try {
-    const isAdminExist = await prisma.admin.findFirst({
-      where: {
-        adminEmail,
-      },
-    });
-    if (!isAdminExist) {
-      res.status(400).json({
-        message: "Admin does not exists !",
-      });
-      return;
-    }
-    const comparedPassword = bcrypt.compare(
-      adminPassword,
-      isAdminExist.adminPassword
-    );
-    if (!comparedPassword) {
-      res.status(400).json({
-        message: "Incorrect Password ",
-      });
-      return;
-    }
-    const adminToken = jwt.sign(
-      { adminEmail },
-      process.env.JWT_ADMIN_SECRET as string,
-      { expiresIn: "1hr" }
-    );
-    
-    res.status(201).json({
-      message: "User Signed in successfully",
-      "Admin Token": adminToken,
-    });
-  } catch (error) {
-    const err = error as Error;
-    res.status(400).json({
-      message: "Something Went wrong",
-      "Error Message": err.message,
-    });
-  }
-};
 
 // Deleted an admin when admin_id is given on the parameter  🖣
 
-export const deleteAdmin = async(req:Request,res: Response)=>{
-  const {admin_id} = req.params
-  if(!admin_id?.trim()){
+export const removeAdmin = async(req:Request,res: Response)=>{
+    const{user_id} = req.params
+    if(!user_id?.trim()){
+        res.status(400).json({
+            message: "All fields are required"
+        });
+        return
+    }
+
+    try {
+        const admin = await prisma.user.findFirst({
+            where:{
+                user_id,
+                role:"ADMIN"
+            }
+        })
+        if(!admin){
+            res.status(404).json({
+                message: "No admin found !"
+            });
+            return
+        }
+        
+        await prisma.user.update({
+            where:{
+                user_id,
+                role:"ADMIN"
+            },
+            data:{
+                role:"STUDENT"
+            }
+        })
+        res.status(200).json({
+            messsage: `${admin.userName} terminated from admin position`
+        })
+    } catch (error) {
+        const err = error as Error
+        res.status(500).json({
+            message:"Internal server error",
+            error:err.message
+        })
+        
+    }
+ 
+}
+
+
+
+export const adminSignIn = async (req: Request, res: Response) => {
+  const { userMobileNo, password } = req.body;
+  if (!userMobileNo?.trim() || !password?.trim()) {
     res.status(400).json({
-      message: "All fields are required"
+      message: "All fields are required",
     });
     return;
   }
   try {
-    const isExist = await prisma.admin.findFirst({
-      where:{
-        admin_id
-      }
+    const isExist = await prisma.user.findFirst({
+      where: {
+        userMobileNo,
+      },
     });
-    if(!isExist){
+    if (!isExist) {
       res.status(400).json({
-        message: "Admin does not exist"
+        message: "User doesnot exists Try signing up",
       });
       return;
     }
-    const deletedAdmin = await prisma.admin.delete({
-      where:{
-        admin_id
-      }
-    });
-    if(!deleteAdmin){
+    const isPasswordValid = await bcrypt.compare(
+      password,
+      isExist.hashedPassword
+    );
+    if (!isPasswordValid) {
       res.status(400).json({
-        message: " Failed to delete Admin "
+        message: "Incorrect password",
       });
-      return
+      return;
     }
+    const token = jwt.sign(
+      { userMobileNo , role:isExist.role},
+      process.env.JWT_SECRET || "ihqvu9eirhgiuvhwou8rehg89uh3yrwhquighreuigh",
+      { expiresIn: "24h" }
+    );
     res.status(201).json({
-      message: "Admin deleted Successfully",
-      "Delted Admin":deletedAdmin
-    })
+      message:`${isExist.role} signed in` ,
+      token: token,
+    });
+    console.log(`Amin ${isExist.userName} signed in`)
   } catch (error) {
-    const err = error as Error
+    const err = error as Error;
     res.status(400).json({
-      message: "Failed To delete the message",
-      "Error Message":err.message
-    })
+      message: err.message,
+    });
   }
-}
+};

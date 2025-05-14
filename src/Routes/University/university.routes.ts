@@ -14,7 +14,7 @@ import { deleteUniversity } from "../../Controller/University/university.control
 
 // Routes 🖣
 universityRouter.get("/",getUniversity);
-universityRouter.post("/add",superAdminAuthValidation,addNewUniversity);
+universityRouter.post("/add",addNewUniversity);
 universityRouter.post("/del",superAdminAuthValidation,deleteUniversity);
 
 

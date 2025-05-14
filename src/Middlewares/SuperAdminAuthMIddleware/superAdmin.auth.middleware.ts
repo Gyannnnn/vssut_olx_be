@@ -1,6 +1,6 @@
 require('dotenv').config()
 import { NextFunction, Request, Response } from "express";
-import jwt from 'jsonwebtoken'
+import jwt, { JwtPayload } from 'jsonwebtoken'
 
 
 
@@ -13,10 +13,21 @@ export const superAdminAuthValidation = async(req: Request,res: Response,next:Ne
         return;
     }
     const token = authHeader.split(" ")[1]
+    
     try {
         
-        const decoded = jwt.verify(token,process.env.JWT_SUPER_ADMIN_SECRET!);
-        next()
+        const decoded = jwt.verify(token,process.env.JWT_SECRET!) as JwtPayload;
+        const role = decoded.role
+       
+        if(role === "SUPERADMIN"){
+            next()
+        }else{
+            res.status(403).json({
+                message: "Unauthorised access"
+            })
+            return;
+        }
+        
     } catch (error) {
         res.status(403).json({ message: "Invalid or expired token" });
         return;
